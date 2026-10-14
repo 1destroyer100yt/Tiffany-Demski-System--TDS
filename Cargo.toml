@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Andrew Detroyer"]
+license = "MIT"
+repository = "https://github.com/1destroyer100yt/Tiffany-Demski-System--TDS"
+
+[workspace.dependencies]
+tds_diagnostics = { path = "crates/tds_diagnostics" }
+tds_lexer = { path = "crates/tds_lexer" }

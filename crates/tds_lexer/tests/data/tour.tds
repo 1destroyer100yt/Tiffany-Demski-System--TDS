@@ -1,0 +1,149 @@
+// Every TDS code sample from the language brief, concatenated.
+
+// Variables
+let name = "Tiffany"          // immutable, inferred String
+var score: Int32 = 100         // mutable
+score += 10
+
+// Functions
+fn greet(name: String) -> String:
+    return "Hello, {name}!"    // string interpolation: any expression in {}
+
+fn square(x: Int32) -> Int32 = x * x   // single-expression form
+
+// Control flow — if/match are expressions
+let label = if score >= 100: "high" else: "low"
+
+for i in 0..<10:     // exclusive range: 0..9
+    print(i)
+for i in 1...10:     // inclusive range: 1..10
+    print(i)
+
+while running:
+    tick()
+
+// Enums with payloads + exhaustive match
+enum Shape:
+    Circle(radius: Float64)
+    Rect(w: Float64, h: Float64)
+    Point
+
+fn area(s: Shape) -> Float64:
+    match s:
+        Circle(r): 3.14159 * r * r
+        Rect(w, h): w * h
+        Point: 0.0
+
+// Structs, interfaces, impls
+struct Motor:
+    name: String
+    voltage: Float32
+    max_rpm: UInt32
+    running: Bool = false          // default field value
+
+interface Controllable:
+    fn start(mut self)
+    fn stop(mut self)
+    fn is_running(self) -> Bool = false   // default method
+
+impl Controllable for Motor:
+    fn start(mut self):
+        self.running = true
+    fn stop(mut self):
+        self.running = false
+    fn is_running(self) -> Bool = self.running
+
+impl Motor:
+    fn new(name: String, volts: Float32) -> Motor:
+        return Motor(name: name, voltage: volts, max_rpm: 6000)
+
+// Generics + optionals
+fn largest[T: Ordered](items: List[T]) -> T?:
+    var best: T? = none
+    for item in items:
+        if best == none or item > best!:
+            best = item
+    return best
+// T? == Option[T]; `none` is empty; `x!` unwraps (panics on none); `a ?? b` = default
+
+// Modules: one file = one module, private unless `pub`
+use std.io
+use motors.types.{Motor, Shape}
+
+pub fn run_all(motors: mut List[Motor]):
+    for m in motors:
+        m.start()
+
+struct Player:
+    name: String
+    health: Int32
+
+fn damage(player: mut Player, amount: Int32):
+    player.health -= amount
+
+fn main():
+    var player = Player(name: "Alex", health: 100)
+    damage(mut player, 25)    // mutation visible at the call site
+    print(player.health)      // 75
+
+struct Parser['src]:
+    text: ref['src] Str
+    pos: UInt
+
+fn first_word['a](text: ref['a] Str) -> ref['a] Str:
+    let end = text.find(' ') ?? text.len()
+    return text[0..<end]
+
+enum ConfigError:
+    Missing(path: String)
+    Invalid(line: UInt, reason: String)
+
+fn load_config(path: Str) -> Result[Config, ConfigError]:
+    let text = fs.read_text(path)?      // ? returns early on Err
+    return parse(text)
+
+fn main() -> Result[(), Error]:
+    let cfg = load_config("tds.toml")?
+    let port = cfg.port ?? 8080
+    match connect(port):
+        Ok(conn): serve(take conn)
+        Err(e): print("failed: {e}")
+
+use std.thread
+use std.sync.{Mutex, Arc, channel}
+
+fn main():
+    let counter = Arc(Mutex(0))
+    thread.scope(fn(s):
+        for _ in 0..<4:
+            let c = counter.clone()
+            s.spawn(fn():
+                c.lock() += 1
+            )
+    )
+    print(counter.lock())   // 4
+
+    let (tx, rx) = channel[String]()
+    thread.spawn(fn(): tx.send("hello"))
+    print(rx.recv()!)
+
+@repr(C)
+struct GpioRegs:
+    mode: Volatile[UInt32]
+    output: Volatile[UInt32]
+
+const GPIOA: MutPtr[GpioRegs] = MutPtr(0x4002_0000)
+
+pub fn led_on():
+    unsafe:
+        // SAFETY: GPIOA is a valid, aligned peripheral address on this chip
+        GPIOA.deref().output.write(1 << 5)
+
+extern "C":
+    fn strlen(s: Ptr[CChar]) -> UInt
+
+@export("tds_add")
+pub extern "C" fn add(a: Int32, b: Int32) -> Int32 = a + b
+
+unsafe:
+    asm("wfi")
