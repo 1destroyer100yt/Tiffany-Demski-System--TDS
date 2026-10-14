@@ -11,6 +11,7 @@ Usage:
     tds check <file.tds>           check a program without running it
     tds parse <file.tds>           print the syntax tree (for debugging)
     tds tokens <file.tds>          print the tokens (for debugging)
+    tds explain <code>             explain an error code, like TDS0412
     tds help                       show this message
 ";
 
@@ -41,6 +42,27 @@ fn main() -> ExitCode {
                 _ => tokens(path, &src),
             }
         }
+        "explain" => {
+            let Some(code) = args.get(1) else {
+                eprintln!("error: `tds explain` needs an error code, like `tds explain TDS0412`");
+                return ExitCode::FAILURE;
+            };
+            match tds_diagnostics::explain(code) {
+                Some(text) => {
+                    println!(
+                        "{}
+
+{text}",
+                        code.to_uppercase()
+                    );
+                    ExitCode::SUCCESS
+                }
+                None => {
+                    eprintln!("error: `{code}` isn't a TDS error code");
+                    ExitCode::FAILURE
+                }
+            }
+        }
         "help" | "--help" | "-h" => {
             print!("{USAGE}");
             ExitCode::SUCCESS
@@ -58,6 +80,23 @@ fn report(diagnostics: &[tds_diagnostics::Diagnostic], path: &str, src: &str) {
     eprint!("{}", tds_cli::render(diagnostics, path, src, color));
 }
 
+/// Prints the errors and a one-line summary with a pointer to `tds explain`.
+fn report_errors(diagnostics: &[tds_diagnostics::Diagnostic], path: &str, src: &str) {
+    report(diagnostics, path, src);
+    let errors: Vec<&str> = diagnostics
+        .iter()
+        .filter(|d| d.severity == tds_diagnostics::Severity::Error)
+        .map(|d| d.code)
+        .collect();
+    if let Some(first) = errors.first() {
+        let count = errors.len();
+        eprintln!(
+            "{count} error{} found. For more about an error, run `tds explain {first}`.",
+            if count == 1 { "" } else { "s" }
+        );
+    }
+}
+
 fn run(path: &str, src: &str, args: Vec<String>) -> ExitCode {
     let result = tds_cli::with_big_stack(|| {
         let mut stdout = std::io::stdout().lock();
@@ -69,7 +108,7 @@ fn run(path: &str, src: &str, args: Vec<String>) -> ExitCode {
             ExitCode::SUCCESS
         }
         Err(errors) => {
-            report(&errors, path, src);
+            report_errors(&errors, path, src);
             ExitCode::FAILURE
         }
     }
@@ -82,12 +121,7 @@ fn check(path: &str, src: &str) -> ExitCode {
             ExitCode::SUCCESS
         }
         Err(errors) => {
-            report(&errors, path, src);
-            let count = errors
-                .iter()
-                .filter(|d| d.severity == tds_diagnostics::Severity::Error)
-                .count();
-            eprintln!("{count} error{} found", if count == 1 { "" } else { "s" });
+            report_errors(&errors, path, src);
             ExitCode::FAILURE
         }
     }

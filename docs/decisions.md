@@ -275,3 +275,16 @@ unterminated string closes the brackets opened earlier on its line; a
 stray closing bracket is dropped; a wrong closing bracket is treated as the
 right one; an expression whose type is unknown gets the `Error` type, which
 fits everywhere; a broken pattern turns off the exhaustiveness check.
+
+## Phase 1, step 7: diagnostics
+
+**D46. Diagnostics are rendered with `codespan-reporting`**, in the rustc
+style the brief asks for: code, message, source snippet with primary (`^`)
+and secondary (`-`) labels, then `= note:` and `= help:` lines. Colors are
+used only when stderr is a terminal. Runtime panics use the same format.
+
+**D47. Long explanations live in one Markdown file**
+(`crates/tds_diagnostics/src/explanations.md`), one `## TDSxxxx` section
+per code, and `tds explain CODE` prints a section. A test makes sure every
+code has an explanation and every explanation has a code. After errors,
+`tds run` and `tds check` print a count and point to `tds explain`.

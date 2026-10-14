@@ -122,3 +122,47 @@ impl Diagnostic {
         self.labels.iter().find(|l| l.primary).map(|l| l.span)
     }
 }
+
+/// The long-form explanation of an error code, for `tds explain`.
+pub fn explain(code: &str) -> Option<&'static str> {
+    const TEXT: &str = include_str!("explanations.md");
+    let code = code.trim().to_uppercase();
+    let header = format!("## {code}\n");
+    let start = TEXT.find(&header)? + header.len();
+    let rest = &TEXT[start..];
+    let end = rest.find("\n## ").unwrap_or(rest.len());
+    Some(rest[..end].trim())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Every code in the registry has an explanation, and every
+    /// explanation belongs to a real code.
+    #[test]
+    fn every_code_is_explained() {
+        let registry = include_str!("codes.rs");
+        let codes: Vec<&str> = registry
+            .split('"')
+            .filter(|s| s.len() == 7 && s.starts_with("TDS"))
+            .collect();
+        assert!(codes.len() > 80);
+        for code in &codes {
+            assert!(
+                explain(code).is_some_and(|t| !t.is_empty()),
+                "{code} has no explanation"
+            );
+        }
+        for section in include_str!("explanations.md").split("\n## ").skip(1) {
+            let code = &section[..7];
+            assert!(codes.contains(&code), "explanation for unknown code {code}");
+        }
+    }
+
+    #[test]
+    fn explain_is_case_insensitive() {
+        assert_eq!(explain("tds0412"), explain("TDS0412"));
+        assert!(explain("TDS9999").is_none());
+    }
+}
