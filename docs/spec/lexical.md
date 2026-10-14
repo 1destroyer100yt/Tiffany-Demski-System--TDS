@@ -27,7 +27,8 @@ Blocks are marked by indentation, not braces. The lexer turns indentation into
 - A line that ends in `,` or a binary operator continues on the next line,
   and the next line's indentation is ignored. The operators are
   `+ - * / % & | ^ << >> == != < <= > >= = += -= *= /= %= . ..< ... -> ?? and or`.
-- At the end of the file, every open block is closed.
+- At the end of the file, every open block is closed. Brackets still open
+  at the end of the file are reported (`TDS0010`).
 
 ```tds
 fn main():                  // fn main ( ) : NEWLINE
@@ -79,7 +80,8 @@ closed on the same line (`TDS0007`) and can't be empty (`TDS0013`).
 **Chars:** `'a'`, `'\n'`, `'é'`: exactly one character (`TDS0014`).
 
 **Lifetimes:** `'src`, a quote followed by an identifier with no closing
-quote. Used by Level 2 references.
+quote. They're reserved for Level 2 references (Phase 3). A quote, a name
+and another quote (`'ab'`) is an invalid char literal, not a lifetime.
 
 ## Operators and punctuation
 

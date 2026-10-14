@@ -166,3 +166,21 @@ mod tests {
         assert!(explain("TDS9999").is_none());
     }
 }
+
+#[cfg(test)]
+mod spec_tests {
+    /// The error table in the language reference lists every code.
+    #[test]
+    fn spec_lists_every_code() {
+        let spec = include_str!("../../../docs/spec/errors.md");
+        for code in include_str!("codes.rs")
+            .split('"')
+            .filter(|s| s.len() == 7 && s.starts_with("TDS"))
+        {
+            assert!(
+                spec.contains(&format!("| {code} |")),
+                "docs/spec/errors.md doesn't list {code}"
+            );
+        }
+    }
+}

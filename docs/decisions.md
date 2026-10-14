@@ -61,7 +61,8 @@ A `.` after digits only starts a fraction if a digit follows it.
 
 **D10. `'` starts a char literal or a lifetime.**
 `'a'` (quote, char, quote) is a char. `'src` (quote, identifier, no closing
-quote) is a lifetime. This is the same rule Rust uses. Lifetimes are lexed now
+quote) is a lifetime. A quote, an identifier and a closing quote (`'ab'`)
+is an invalid char literal. This is the same rule Rust uses. Lifetimes are lexed now
 so Phase 3 doesn't need lexer changes.
 
 **D11. `read` is not a keyword.**
@@ -312,3 +313,11 @@ from `5`; `()` values print nothing.
 **D51. No line-editing library yet.** The REPL reads plain lines from
 stdin, so it also works with piped input. Arrow-key history can come with
 the Phase 4 tooling work.
+
+## Phase 1, step 9: documentation
+
+**D52. The reference is split into chapters** under `docs/spec/` (lexical
+structure, syntax, types, values and ownership, built-ins, errors, tools)
+instead of a single `docs/spec.md`, following the repository layout in the
+brief. The error-code table in `docs/spec/errors.md` is checked against the
+code registry by a test, like the explanations and the UI tests.
