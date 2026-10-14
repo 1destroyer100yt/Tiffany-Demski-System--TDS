@@ -1,0 +1,37 @@
+// Optionals: T?, none, ?? and !
+fn largest(items: List[Int]) -> Int?:
+    var best: Int? = none
+    for item in items:
+        if best == none or item > best!:
+            best = item
+    return best
+
+fn find(words: List[String], target: String) -> Int?:
+    for i in 0..<len(words):
+        if words[i] == target:
+            return i
+    return none
+
+fn main():
+    print(largest([3, 9, 2]))
+    print(largest([]))
+    print(largest([]) ?? -1)
+    print(largest([7])! + 1)
+
+    let words = ["a", "b", "c"]
+    print(find(words, "c") ?? -1)
+    print(find(words, "z") ?? -1)
+
+    var stack = [1, 2]
+    print(stack.pop())
+    print(stack.pop())
+    print(stack.pop())
+    print(stack.pop() ?? 0)
+
+    let parsed = "42".to_int()
+    let bad = "4x2".to_int()
+    print("{parsed}, {bad}, {bad ?? 0}")
+    var maybe: String? = none
+    print(maybe)
+    maybe = "now set"
+    print(maybe!)

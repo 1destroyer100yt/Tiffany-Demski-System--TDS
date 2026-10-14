@@ -1,0 +1,8 @@
+75
+Alex (level 1) has 75 HP
+snapshot: 75, player: 65
+Alex (level 2) has 65 HP
+25
+Alex (level 2) has 100 HP
+Sam (level 3) has 100 HP
+Player(name: "Alex", health: 100, level: 2)

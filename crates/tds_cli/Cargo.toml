@@ -1,0 +1,23 @@
+[package]
+name = "tds_cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "The `tds` command: run, check and explore TDS programs."
+
+[[bin]]
+name = "tds"
+path = "src/main.rs"
+
+[dependencies]
+tds_diagnostics.workspace = true
+tds_lexer.workspace = true
+tds_ast.workspace = true
+tds_parser.workspace = true
+tds_interp.workspace = true
+codespan-reporting.workspace = true
+
+[dev-dependencies]
+insta.workspace = true

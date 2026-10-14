@@ -1,0 +1,34 @@
+// Exclusive and inclusive ranges, break and continue.
+fn main():
+    var total = 0
+    for i in 0..<5:
+        total += i
+    print("0..<5 sums to {total}")
+
+    total = 0
+    for i in 1...5:
+        total += i
+    print("1...5 sums to {total}")
+
+    for i in 5..<5:
+        print("never")
+    for i in 3...1:
+        print("never")
+
+    var evens: List[Int] = []
+    for i in 0..<100:
+        if i > 10: break
+        if i % 2 == 1: continue
+        evens.push(i)
+    print(evens)
+
+    let n = 3
+    for i in -n...n:
+        print(i)
+
+    var count = 0
+    while true:
+        count += 1
+        if count == 7:
+            break
+    print("count = {count}")

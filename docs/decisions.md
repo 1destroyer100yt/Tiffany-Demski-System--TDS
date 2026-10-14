@@ -133,3 +133,74 @@ syntax error.
 **D23. The parser doesn't repeat lexer errors.**
 It never reports an error at a lexer `Error` token, and the lexer closes
 unclosed brackets (D3b), so one typo gives one error.
+
+## Phase 1, steps 3-5: interpreter, data types, parameter modes
+
+**D24. The interpreter walks the AST (the Phase 2 seam).**
+Phase 1 executes the checked AST directly. In Phase 2, name resolution and
+lowering produce HIR and TIR, and the interpreter is rewritten over TIR. The
+interpreter's public API (`load_items`, `run_main`, `run_stmt`) is meant to
+survive that change, and so is the driver in `tds_cli`.
+
+**D25. Value semantics via copy-on-write.**
+`let b = a` gives `b` its own value. Lists, strings, structs and variants
+live behind `Rc`, so a copy is cheap, and a write copies the data only if
+it's still shared. Phase 3's ownership checker will decide where an implicit
+copy should become an error that asks for `.clone()` or `take`; Phase 1 is
+deliberately permissive here.
+
+**D26. How parameter modes run.**
+- read: the callee gets a copy (cheap, see D25). It can't change it.
+- take: the value moves out of the caller's variable, which becomes unusable
+  until it's assigned again. Copy types (numbers, `Bool`, `Char`) are copied
+  instead of moved, so they stay usable.
+- mut: the value moves out of the caller's place for the call and is written
+  back when the call returns. Because `mut` borrows are exclusive, this can't
+  be told apart from passing a reference.
+- A `take` parameter is an owned local, so the callee may change it.
+
+**D27. Two-phase `mut` arguments.**
+Read and take arguments are evaluated first, and `mut` places are taken
+just before the call. So `quicksort(mut xs, 0, len(xs) - 1)` works: the read
+of `xs` finishes before the exclusive borrow starts (Rust calls this a
+two-phase borrow). Passing the same variable itself as another argument,
+like `f(mut xs, xs)`, is still a conflict (`TDS0410`).
+
+**D28. Optionals are represented without a wrapper.**
+At run time, a present `T?` is just the value, and `none` is a separate
+value. That's why optionals of optionals (`Int??`) are not allowed in
+Phase 1 (`TDS0225`). `List[T?].pop()` would need one, so `pop` on a list of
+optionals is also rejected.
+
+**D29. Integer overflow panics; integer division by zero panics.**
+Phase 1 behaves like a Development build: `+ - * / %`, negation, `abs` and
+`pow` on `Int` panic on overflow (`TDS0500`). Integer `/` and `%` by zero
+panic (`TDS0501`). `Float` follows IEEE 754 (`1.0 / 0.0` is infinity).
+
+**D30. Conversions.**
+`Int(Float)` truncates toward zero and panics if the value doesn't fit
+(`TDS0505`). `Int(Char)` gives the code point. `Float(Int)` rounds to the
+nearest `Float`. `String(x)` formats any value like `print` does.
+
+**D31. `len` of a string counts characters (Unicode scalar values).**
+This is the friendlier choice while strings can't be indexed. When string
+slicing arrives (Phase 4), a separate byte length may be added.
+
+**D32. `==` compares structurally; `<` only on numbers, `Char` and `String`.**
+Phase 1 lets `==` compare any two values of the same type. Phase 3 will
+require the `Equal` interface, derivable with `@derive(Equal)`.
+
+**D33. Display format.** `print` and interpolation show values like this:
+`Float`s always have a decimal point (`10.0`); strings and chars are quoted
+only inside lists and structs; structs print as `Player(name: "Alex",
+health: 75)`; unit variants as `Point`; `none` as `none`.
+
+**D34. Built-ins.** Functions: `print`, `len`, `Int`, `Float`, `String`,
+`read_file` (returns `String?`), `args`, `panic`. Methods on `List`, `String`,
+`Int`, `Float` and `Char` are listed in `docs/spec/`. `read_file` returns
+`none` on failure because `Result` isn't in the Phase 1 subset.
+
+**D35. Call depth is limited to 10,000.**
+Deeper recursion panics with `TDS0504` instead of crashing the process. The
+interpreter runs on a thread with a 1 GiB stack (reserved, not used up
+front) so that limit fits.

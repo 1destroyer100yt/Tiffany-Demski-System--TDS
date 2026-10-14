@@ -1,0 +1,32 @@
+// `take` moves ownership. A moved variable can be given a new value.
+struct Ticket:
+    id: Int
+    owner: String
+
+fn redeem(t: take Ticket) -> String:
+    return "redeemed #{t.id} for {t.owner}"
+
+fn rename(t: take Ticket, owner: String) -> Ticket:
+    var updated = take t
+    updated.owner = owner
+    return updated
+
+fn main():
+    var ticket = Ticket(id: 1, owner: "Ana")
+    ticket = rename(take ticket, "Bo")
+    print(ticket.owner)
+    print(redeem(take ticket))
+
+    ticket = Ticket(id: 2, owner: "Cy")
+    let other = take ticket
+    print(other.id)
+
+    // Copy types are copied even with `take`.
+    let n = 5
+    let m = take n
+    print(n + m)
+
+    var queue = [Ticket(id: 3, owner: "Di"), Ticket(id: 4, owner: "Ed")]
+    while not queue.is_empty():
+        let t = queue.pop()!
+        print(redeem(take t))

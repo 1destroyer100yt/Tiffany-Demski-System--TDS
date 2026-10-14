@@ -1,0 +1,20 @@
+// Built-in string methods.
+fn main():
+    let s = "  Hello, World  "
+    print("[{s.trim()}]")
+    print(s.trim().upper())
+    print(s.trim().lower())
+    print(len("héllo"))
+    print("abc".len())
+    print("hello".contains("ell"))
+    print("hello".starts_with("he") and "hello".ends_with("lo"))
+    print("a,b,,c".split(","))
+    print("one\ntwo\nthree".lines())
+    print("hi!".chars())
+    print("".is_empty())
+    print("abc" < "abd")
+    print("x" + "y" + "z")
+    print(String(12) + String(3.5) + String(true))
+    for c in "a1 ":
+        print("{c}: {c.is_alphabetic()} {c.is_digit()} {c.is_whitespace()}")
+    print(" 3.25 ".to_float())

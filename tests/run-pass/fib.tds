@@ -1,0 +1,12 @@
+// Recursion, and the single-expression function form.
+fn fib(n: Int) -> Int = if n < 2: n else: fib(n - 1) + fib(n - 2)
+
+fn factorial(n: Int) -> Int:
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+
+fn main():
+    for i in 0..<15:
+        print("fib({i}) = {fib(i)}")
+    print("20! = {factorial(20)}")

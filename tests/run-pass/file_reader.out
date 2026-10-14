@@ -1,0 +1,6 @@
+lines: 32
+words: 117
+comment lines: 2
+longest line: // The test harness passes this file's own path as the first argument.
+first line: // Reads a file and reports on it. Exit test for Phase 1.
+missing file: true

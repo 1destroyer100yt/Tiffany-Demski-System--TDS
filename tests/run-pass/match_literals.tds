@@ -1,0 +1,30 @@
+// Matching on numbers, strings, bools and chars, with catch-all arms.
+fn describe(n: Int) -> String:
+    match n:
+        0: "zero"
+        1: "one"
+        -1: "minus one"
+        other: "other ({other})"
+
+fn greet(lang: String) -> String:
+    match lang:
+        "en": "hello"
+        "fr": "bonjour"
+        _: "?"
+
+fn kind(c: Char) -> String:
+    match c.is_digit():
+        true: "digit"
+        false:
+            match c:
+                ' ': "space"
+                _: "other"
+
+fn main():
+    for n in [0, 1, -1, 42]:
+        print(describe(n))
+    print(greet("fr"))
+    print(greet("de"))
+    print(kind('7'))
+    print(kind(' '))
+    print(kind('x'))

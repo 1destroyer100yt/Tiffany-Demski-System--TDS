@@ -1,0 +1,23 @@
+// Block scoping and shadowing.
+fn main():
+    let x = 1
+    if true:
+        let x = 2
+        print(x)
+    print(x)
+
+    let x = "shadowed"
+    print(x)
+
+    var total = 0
+    for i in 0..<3:
+        let doubled = i * 2
+        total += doubled
+    print(total)
+
+    let label = if total > 5:
+        let extra = 100
+        "big {extra}"
+    else:
+        "small"
+    print(label)

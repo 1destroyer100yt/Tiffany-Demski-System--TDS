@@ -1,0 +1,6 @@
+[-3, 0, 1, 2, 5, 5, 6, 9]
+[3, 9, 10, 27, 38, 43, 82]
+sorted before: false
+sorted after: true, size 2000
+[]
+["apple", "banana", "fig", "pear"]

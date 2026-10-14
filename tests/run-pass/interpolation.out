@@ -1,0 +1,10 @@
+Hello, Tiffany!
+Tiffany scored 110, double is 220
+label: high
+p = Point(x: 3, y: -4), x + y = -1
+list: [1, 2, 3], words: ["a", "b"]
+float: 2.5, char: z, bool: false
+braces: { and }, quote: ", tab:[	]
+nested: inner Tiffany
+
+unicode: 😀 café

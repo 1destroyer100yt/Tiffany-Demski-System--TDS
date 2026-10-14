@@ -1,0 +1,48 @@
+// Enums with payloads and exhaustive match.
+enum Shape:
+    Circle(radius: Float)
+    Rect(w: Float, h: Float)
+    Point
+
+fn area(s: Shape) -> Float:
+    match s:
+        Circle(r): 3.0 * r * r
+        Rect(w, h): w * h
+        Point: 0.0
+
+fn name(s: Shape) -> String:
+    return match s:
+        Circle(_): "circle"
+        Rect(w, h):
+            if w == h: "square" else: "rectangle"
+        Point: "point"
+
+enum Command:
+    Move(Int, Int)
+    Say(String)
+    Quit
+
+fn run(cmd: Command, pos: mut List[Int]) -> Bool:
+    match cmd:
+        Move(dx, dy):
+            pos[0] += dx
+            pos[1] += dy
+        Say(text): print("says: {text}")
+        Quit: return false
+    return true
+
+fn main():
+    let shapes = [Circle(radius: 2.0), Rect(w: 3.0, h: 4.0), Rect(2.0, 2.0), Point, Shape.Point]
+    for s in shapes:
+        print("{name(s)}: {area(s)}")
+    print(shapes[0])
+    print(shapes[1] == Rect(3.0, 4.0))
+    print(Shape.Point == Point)
+
+    var pos = [0, 0]
+    let commands = [Move(1, 2), Say("hi"), Move(-3, 1), Quit, Say("never")]
+    for c in commands:
+        if not run(c, mut pos):
+            print("quit")
+            break
+    print(pos)

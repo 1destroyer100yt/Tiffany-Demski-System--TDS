@@ -1,0 +1,32 @@
+// Reads a file and reports on it. Exit test for Phase 1.
+// The test harness passes this file's own path as the first argument.
+
+fn count_words(line: String) -> Int:
+    var count = 0
+    for word in line.split(" "):
+        if not word.trim().is_empty():
+            count += 1
+    return count
+
+fn main():
+    let path = args()[0]
+    let text = read_file(path) ?? ""
+    let lines = text.lines()
+    print("lines: {len(lines)}")
+
+    var words = 0
+    var comments = 0
+    var longest = ""
+    for line in lines:
+        words += count_words(line)
+        if line.trim().starts_with("//"):
+            comments += 1
+        if len(line) > len(longest):
+            longest = line
+    print("words: {words}")
+    print("comment lines: {comments}")
+    print("longest line: {longest.trim()}")
+    print("first line: {lines[0]}")
+
+    let missing = read_file("/this/file/does/not/exist.txt")
+    print("missing file: {missing == none}")

@@ -1,0 +1,19 @@
+// String interpolation: any expression inside {}.
+struct Point:
+    x: Int
+    y: Int
+
+fn main():
+    let name = "Tiffany"
+    let score = 110
+    print("Hello, {name}!")
+    print("{name} scored {score}, double is {score * 2}")
+    print("label: {if score >= 100: "high" else: "low"}")
+    let p = Point(x: 3, y: -4)
+    print("p = {p}, x + y = {p.x + p.y}")
+    print("list: {[1, 2, 3]}, words: {["a", "b"]}")
+    print("float: {1.5 + 1.0}, char: {'z'}, bool: {not true}")
+    print("braces: \{ and \}, quote: \", tab:[\t]")
+    print("nested: {"inner {name}"}")
+    print("")
+    print("unicode: \u{1F600} café")

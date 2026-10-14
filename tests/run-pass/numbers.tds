@@ -1,0 +1,24 @@
+// Numbers: no implicit conversions, explicit Int()/Float(), formatting.
+fn main():
+    let i = 7
+    let f = 2.0
+    print(Float(i) / f)
+    print(i / 2)
+    print(i % 3)
+    print(-i / 2)
+    print(Int(3.99))
+    print(Int(-3.99))
+    print(Int('A'))
+    print(1.0 / 3.0)
+    print(10.0)
+    print(1e21)
+    print(0.1 + 0.2)
+    print((-5).abs())
+    print(3.min(9))
+    print(2.pow(10))
+    print(2.0.sqrt())
+    print((-2.5).abs().floor())
+    print(9223372036854775807)
+    print(-9223372036854775808)
+    let x: Float = 5.0
+    print(x * 2.0)

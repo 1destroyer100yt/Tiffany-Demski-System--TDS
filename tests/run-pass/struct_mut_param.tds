@@ -1,0 +1,42 @@
+// Structs, default fields, and the three parameter modes.
+struct Player:
+    name: String
+    health: Int
+    level: Int = 1
+
+fn damage(player: mut Player, amount: Int):
+    player.health -= amount
+
+fn heal_all(players: mut List[Player]):
+    for i in 0..<len(players):
+        players[i].health = 100
+
+fn describe(player: Player) -> String:
+    return "{player.name} (level {player.level}) has {player.health} HP"
+
+fn level_up(player: take Player) -> Player:
+    var p = take player
+    p.level += 1
+    return p
+
+fn main():
+    var player = Player(name: "Alex", health: 100)
+    damage(mut player, 25)
+    print(player.health)
+    print(describe(player))
+
+    // A read borrow is a copy for the callee; the caller's value is untouched.
+    let snapshot = player
+    damage(mut player, 10)
+    print("snapshot: {snapshot.health}, player: {player.health}")
+
+    player = level_up(take player)
+    print(describe(player))
+
+    var team = [player, Player(name: "Sam", health: 40, level: 3)]
+    damage(mut team[1], 15)
+    print(team[1].health)
+    heal_all(mut team)
+    for p in team:
+        print(describe(p))
+    print(team[0])

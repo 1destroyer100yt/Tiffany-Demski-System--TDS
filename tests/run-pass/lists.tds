@@ -1,0 +1,35 @@
+// Lists: literals, push/pop, indexing, nesting and value semantics.
+fn sum(xs: List[Int]) -> Int:
+    var total = 0
+    for x in xs:
+        total += x
+    return total
+
+fn main():
+    var xs = [1, 2, 3]
+    xs.push(4)
+    xs[0] = 10
+    print(xs)
+    print("len {len(xs)}, sum {sum(xs)}, has 3: {xs.contains(3)}")
+
+    // Assignment copies: changing `ys` leaves `xs` alone.
+    var ys = xs
+    ys.push(5)
+    print("{xs} {ys}")
+
+    var grid: List[List[Int]] = []
+    for r in 0..<3:
+        var row: List[Int] = []
+        for c in 0..<3:
+            row.push(r * 3 + c)
+        grid.push(row)
+    grid[1][1] = 0
+    print(grid)
+    print(grid[2][0])
+
+    var names: List[String] = []
+    print(names.is_empty())
+    names.push("x")
+    print(names)
+    print([[1], [], [2, 3]])
+    print([1.5, 2.0] == [1.5, 2.0])

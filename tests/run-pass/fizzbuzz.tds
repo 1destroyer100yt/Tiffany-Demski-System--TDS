@@ -1,0 +1,13 @@
+// The classic. Exit test for Phase 1.
+fn fizzbuzz(n: Int) -> String:
+    if n % 15 == 0:
+        return "FizzBuzz"
+    else if n % 3 == 0:
+        return "Fizz"
+    else if n % 5 == 0:
+        return "Buzz"
+    return String(n)
+
+fn main():
+    for i in 1...20:
+        print(fizzbuzz(i))
