@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    var items = []\n    items.push(1)\n"
+---
+error[TDS0221]: can't tell what type of list this is
+  ┌─ TDS0221-cannot-infer.tds:2:17
+  │
+2 │     var items = []
+  │                 ^^ empty list
+  │
+  = help: add a type annotation, like `var xs: List[Int] = []`

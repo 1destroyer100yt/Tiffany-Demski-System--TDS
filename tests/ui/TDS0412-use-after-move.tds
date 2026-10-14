@@ -1,0 +1,12 @@
+struct Player:
+    name: String
+    health: Int
+
+fn save(player: take Player):
+    print("saved {player.name}")
+
+fn main():
+    let player = Player(name: "Alex", health: 100)
+    save(take player)
+
+    print(player.health)

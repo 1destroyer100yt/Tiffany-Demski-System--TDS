@@ -1,0 +1,4 @@
+fn average(total: Int, count: Int) -> Int = total / count
+
+fn main():
+    print(average(10, 0))

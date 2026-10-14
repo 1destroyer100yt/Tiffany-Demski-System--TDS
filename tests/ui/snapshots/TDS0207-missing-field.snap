@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "struct Player:\n    name: String\n    health: Int\n    level: Int = 1\n\nfn main():\n    let p = Player(name: \"Alex\")\n"
+---
+error[TDS0207]: missing field `health` in `Player`
+  ┌─ TDS0207-missing-field.tds:7:13
+  │
+7 │     let p = Player(name: "Alex")
+  │             ^^^^^^^^^^^^^^^^^^^^ `health` not given
+  │
+  = help: add `health: ...`

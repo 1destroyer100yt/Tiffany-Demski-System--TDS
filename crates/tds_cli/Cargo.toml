@@ -17,6 +17,7 @@ tds_lexer.workspace = true
 tds_ast.workspace = true
 tds_parser.workspace = true
 tds_interp.workspace = true
+tds_check.workspace = true
 codespan-reporting.workspace = true
 
 [dev-dependencies]

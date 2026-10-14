@@ -1,0 +1,14 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn describe(n: Int) -> String:\n    match n:\n        other: \"some number\"\n        0: \"zero\"\n\nfn main():\n    print(describe(0))\n"
+---
+warning[TDS0239]: this match arm can never run
+  ┌─ TDS0239-unreachable-pattern.tds:4:9
+  │
+4 │         0: "zero"
+  │         ^ already covered by an earlier arm
+  │
+  = help: remove this arm, or move it above the arm that covers it
+
+--- program output ---
+some number

@@ -73,6 +73,20 @@ impl Interpreter<'_> {
         args: &[Arg],
         span: Span,
     ) -> Exec<Value> {
+        // `Shape.Circle(1.0)` parses as a method call on the enum's name.
+        if let ExprKind::Name(enum_name) = &receiver.kind {
+            if self.lookup_slot(enum_name).is_none() {
+                let info = self
+                    .enums
+                    .get(enum_name)
+                    .and_then(|variants| variants.iter().find(|v| v.name == method.name))
+                    .cloned();
+                if let Some(info) = info {
+                    return self.construct_variant(info, args);
+                }
+            }
+        }
+
         // Methods that change a list work on the variable in place.
         if matches!(method.name.as_str(), "push" | "pop") {
             return self.list_mutation(receiver, method, args, span);
@@ -84,6 +98,10 @@ impl Interpreter<'_> {
             values.push(self.eval(&arg.value)?);
         }
         let name = method.name.as_str();
+        if name == "clone" && values.is_empty() {
+            // Values are copy-on-write, so a clone is just another handle.
+            return Ok(target);
+        }
 
         match (&target, name, values.as_slice()) {
             // ---- List ----

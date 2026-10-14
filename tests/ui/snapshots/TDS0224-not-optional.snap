@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let n = 5\n    print(n ?? 0)\n"
+---
+error[TDS0224]: `??` needs an optional on the left, found `Int`
+  ┌─ TDS0224-not-optional.tds:3:11
+  │
+3 │     print(n ?? 0)
+  │           ^ never `none`, so the default would never be used
+  │
+  = help: remove `?? ...`

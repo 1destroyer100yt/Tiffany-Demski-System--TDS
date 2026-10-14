@@ -125,7 +125,8 @@ pub const WRONG_PATTERN_ARITY: &str = "TDS0219";
 pub const IF_WITHOUT_ELSE: &str = "TDS0220";
 /// An empty list or `none` whose type can't be worked out.
 pub const CANNOT_INFER: &str = "TDS0221";
-/// A function that can end without returning a value.
+/// A value is needed, but the expression or block doesn't produce one
+/// (for example, a function that can end without returning).
 pub const MISSING_RETURN: &str = "TDS0222";
 /// `break` or `continue` outside a loop.
 pub const BREAK_OUTSIDE_LOOP: &str = "TDS0223";
@@ -155,8 +156,8 @@ pub const UNSUPPORTED_TYPE: &str = "TDS0234";
 pub const LITERAL_OUT_OF_RANGE: &str = "TDS0235";
 /// A variant with fields used without arguments, or vice versa.
 pub const VARIANT_ARGUMENTS: &str = "TDS0236";
-/// A function used as a value.
-pub const FUNCTION_AS_VALUE: &str = "TDS0237";
+/// A function or type name used where a value is expected.
+pub const NOT_A_VALUE: &str = "TDS0237";
 /// `return` with a value in a function that returns `()`, or without one
 /// in a function that returns a value.
 pub const BAD_RETURN: &str = "TDS0238";

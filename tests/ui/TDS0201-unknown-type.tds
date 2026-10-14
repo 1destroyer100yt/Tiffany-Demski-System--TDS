@@ -1,0 +1,6 @@
+struct Point:
+    x: Int
+    y: Itn
+
+fn main():
+    print(1)

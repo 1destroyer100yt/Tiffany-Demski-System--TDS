@@ -32,7 +32,7 @@ fn run(cmd: Command, pos: mut List[Int]) -> Bool:
     return true
 
 fn main():
-    let shapes = [Circle(radius: 2.0), Rect(w: 3.0, h: 4.0), Rect(2.0, 2.0), Point, Shape.Point]
+    let shapes = [Circle(radius: 2.0), Rect(w: 3.0, h: 4.0), Shape.Rect(2.0, 2.0), Point, Shape.Point]
     for s in shapes:
         print("{name(s)}: {area(s)}")
     print(shapes[0])

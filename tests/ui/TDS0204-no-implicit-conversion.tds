@@ -1,0 +1,3 @@
+fn main():
+    let count = 3
+    let half: Float = count / 2

@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn show(n: Int):\n    print(n)\n\nfn main():\n    var n = 1\n    show(mut n)\n"
+---
+error[TDS0405]: this argument shouldn't be marked `mut`
+  ┌─ TDS0405-wrong-mode-marker.tds:6:10
+  │
+6 │     show(mut n)
+  │          ^^^ `mut` doesn't match the parameter
+  │
+  = note: `show` only reads parameter `n`
+  = help: remove `mut`

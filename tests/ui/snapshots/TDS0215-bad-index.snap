@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let name = \"Tiffany\"\n    print(name[0])\n"
+---
+error[TDS0215]: can't index into a value of type `String`
+  ┌─ TDS0215-bad-index.tds:3:11
+  │
+3 │     print(name[0])
+  │           ^^^^ this has type `String`
+  │
+  = help: strings can't be indexed yet; use `.chars()` to get a list of characters

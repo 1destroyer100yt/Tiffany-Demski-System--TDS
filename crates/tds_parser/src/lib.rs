@@ -597,12 +597,21 @@ impl Parser {
             }
             _ => return Err(self.unexpected("a type")),
         };
-        while self.at(&TokenKind::Question) {
-            let end = self.bump().span;
-            ty = TypeExpr {
-                span: ty.span.to(end),
-                kind: TypeExprKind::Optional(Box::new(ty)),
+        loop {
+            // `T??` is lexed as one `??` token; it means two `?`s (and the
+            // checker rejects it, since optionals can't nest).
+            let depth = match self.peek() {
+                TokenKind::Question => 1,
+                TokenKind::QuestionQuestion => 2,
+                _ => break,
             };
+            let end = self.bump().span;
+            for _ in 0..depth {
+                ty = TypeExpr {
+                    span: ty.span.to(end),
+                    kind: TypeExprKind::Optional(Box::new(ty)),
+                };
+            }
         }
         Ok(ty)
     }

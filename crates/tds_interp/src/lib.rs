@@ -745,19 +745,6 @@ impl<'out> Interpreter<'out> {
                 }
                 self.call_builtin(name, args, span)
             }
-            ExprKind::Field { expr, field } => {
-                if let ExprKind::Name(enum_name) = &expr.kind {
-                    let info = self
-                        .enums
-                        .get(enum_name)
-                        .and_then(|vs| vs.iter().find(|v| v.name == field.name))
-                        .cloned();
-                    if let Some(info) = info {
-                        return self.construct_variant(info, args);
-                    }
-                }
-                internal("calling a value that isn't a function", callee.span)
-            }
             _ => internal("calling a value that isn't a function", callee.span),
         }
     }

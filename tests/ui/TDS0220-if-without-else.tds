@@ -1,0 +1,3 @@
+fn main():
+    let score = 50
+    let label = if score > 10: "high"

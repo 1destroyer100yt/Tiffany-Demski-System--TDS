@@ -1,0 +1,9 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn average(total: Int, count: Int) -> Int = total / count\n\nfn main():\n    print(average(10, 0))\n"
+---
+error[TDS0501]: division by zero
+  ┌─ TDS0501-division-by-zero.tds:1:45
+  │
+1 │ fn average(total: Int, count: Int) -> Int = total / count
+  │                                             ^^^^^^^^^^^^^ the divisor is zero

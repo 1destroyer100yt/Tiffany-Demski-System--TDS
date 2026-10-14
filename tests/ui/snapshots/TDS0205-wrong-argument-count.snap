@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn add(a: Int, b: Int) -> Int = a + b\n\nfn main():\n    print(add(1, 2, 3))\n"
+---
+error[TDS0205]: `add` takes 2 arguments but 3 were given
+  ┌─ TDS0205-wrong-argument-count.tds:4:11
+  │
+1 │ fn add(a: Int, b: Int) -> Int = a + b
+  │    --- `add` is defined here
+  ·
+4 │     print(add(1, 2, 3))
+  │           ^^^^^^^^^^^^ expected 2 arguments

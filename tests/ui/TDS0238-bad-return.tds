@@ -1,0 +1,6 @@
+fn log(message: String):
+    print(message)
+    return 1
+
+fn main():
+    log("x")

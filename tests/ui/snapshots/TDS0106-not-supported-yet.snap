@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "impl Motor:\n    fn start(mut self):\n        self.running = true\n\nfn main():\n    print(1)\n"
+---
+error[TDS0106]: `impl` blocks aren't supported yet
+  ┌─ TDS0106-not-supported-yet.tds:1:1
+  │
+1 │ impl Motor:
+  │ ^^^^ not available in the Phase 1 prototype
+  │
+  = note: `impl` blocks arrive in Phase 3 of the TDS roadmap

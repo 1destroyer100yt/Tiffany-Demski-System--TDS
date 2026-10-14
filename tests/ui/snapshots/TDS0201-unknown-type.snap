@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "struct Point:\n    x: Int\n    y: Itn\n\nfn main():\n    print(1)\n"
+---
+error[TDS0201]: unknown type `Itn`
+  ┌─ TDS0201-unknown-type.tds:3:8
+  │
+3 │     y: Itn
+  │        ^^^ not a known type
+  │
+  = help: did you mean `Int`?

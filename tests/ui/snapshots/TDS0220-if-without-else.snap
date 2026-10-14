@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let score = 50\n    let label = if score > 10: \"high\"\n"
+---
+error[TDS0220]: this `if` has no `else`, so it has no value when the condition is false
+  ┌─ TDS0220-if-without-else.tds:3:17
+  │
+3 │     let label = if score > 10: "high"
+  │                 ^^^^^^^^^^^^^^^^^^^^^ `if` without `else`
+  │
+  = help: add an `else:` branch

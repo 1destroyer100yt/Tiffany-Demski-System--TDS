@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let big = 9223372036854775808\n"
+---
+error[TDS0235]: integer literal is too large for `Int`
+  ┌─ TDS0235-literal-out-of-range.tds:2:15
+  │
+2 │     let big = 9223372036854775808
+  │               ^^^^^^^^^^^^^^^^^^^ doesn't fit
+  │
+  = note: the largest `Int` is 9223372036854775807

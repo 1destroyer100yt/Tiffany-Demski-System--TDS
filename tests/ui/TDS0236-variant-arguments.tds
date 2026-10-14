@@ -1,0 +1,6 @@
+enum Shape:
+    Circle(radius: Float)
+    Point
+
+fn main():
+    let s = Circle

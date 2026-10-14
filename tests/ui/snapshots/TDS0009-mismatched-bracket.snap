@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let xs = [1, 2)\n"
+---
+error[TDS0009]: expected `]` but found `)`
+  ┌─ TDS0009-mismatched-bracket.tds:2:19
+  │
+2 │     let xs = [1, 2)
+  │              -    ^ doesn't match
+  │              │     
+  │              `[` opened here

@@ -1,0 +1,10 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn helper() -> Int = 1\n"
+---
+error[TDS0227]: this program has no `main` function
+ = note: a program starts running at `fn main()`
+ = help: add one:
+   
+       fn main():
+           print("Hello!")

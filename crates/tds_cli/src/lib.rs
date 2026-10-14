@@ -16,7 +16,7 @@ use codespan_reporting::diagnostic::{
 use codespan_reporting::files::SimpleFile;
 use codespan_reporting::term::{self, termcolor, Config, Styles, StylesWriter};
 use tds_ast::Module;
-use tds_diagnostics::{codes, Diagnostic, Severity, Span};
+use tds_diagnostics::{Diagnostic, Severity, Span};
 use tds_interp::Interpreter;
 
 /// Parses and checks a source file. On success returns the module, ready
@@ -36,15 +36,7 @@ pub fn check(src: &str) -> Result<(Module, Vec<Diagnostic>), Vec<Diagnostic>> {
 
 /// The semantic checks run after a successful parse.
 fn check_module(module: &Module) -> Vec<Diagnostic> {
-    let mut diagnostics = Vec::new();
-    if !module.items.iter().any(|item| item.name().name == "main") {
-        diagnostics.push(
-            Diagnostic::error(codes::NO_MAIN, "this program has no `main` function")
-                .with_note("a program starts running at `fn main()`")
-                .with_help("add one:\n\nfn main():\n    print(\"Hello!\")"),
-        );
-    }
-    diagnostics
+    tds_check::check_module(module)
 }
 
 /// Checks and runs a program, writing its output to `out`. Returns the

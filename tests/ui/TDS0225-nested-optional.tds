@@ -1,0 +1,5 @@
+fn find() -> Int??:
+    return none
+
+fn main():
+    print(1)

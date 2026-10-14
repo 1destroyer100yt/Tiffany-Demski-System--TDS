@@ -1,0 +1,3 @@
+fn main():
+    let n = "abc".to_int()
+    print(n! + 1)

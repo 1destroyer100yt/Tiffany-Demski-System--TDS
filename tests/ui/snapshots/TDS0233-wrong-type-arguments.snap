@@ -1,0 +1,9 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let xs: List = [1, 2]\n"
+---
+error[TDS0233]: `List` needs one type argument, like `List[Int]`
+  ┌─ TDS0233-wrong-type-arguments.tds:2:13
+  │
+2 │     let xs: List = [1, 2]
+  │             ^^^^ wrong number of type arguments

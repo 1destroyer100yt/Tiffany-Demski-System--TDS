@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "print(\"hello\")\n\nfn main():\n    print(1)\n"
+---
+error[TDS0104]: statements can't appear at the top level of a file
+  ┌─ TDS0104-statement-at-top-level.tds:1:1
+  │
+1 │ print("hello")
+  │ ^^^^^ expected `fn`, `struct` or `enum`
+  │
+  = note: code runs from `fn main()`; the top level only declares things
+  = help: move this line into `fn main():`

@@ -1,0 +1,14 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn copy_into(dest: mut List[Int], src: List[Int]):\n    for x in src:\n        dest.push(x)\n\nfn main():\n    var xs = [1, 2]\n    copy_into(mut xs, xs)\n"
+---
+error[TDS0410]: `xs` is lent with `mut` and also used by another argument
+  ┌─ TDS0410-conflicting-borrow.tds:7:23
+  │
+7 │     copy_into(mut xs, xs)
+  │               ------  ^^ also used here
+  │               │        
+  │               lent with `mut` here
+  │
+  = note: while a value is lent with `mut`, nothing else may use it
+  = help: copy what you need first: `let copy = xs`

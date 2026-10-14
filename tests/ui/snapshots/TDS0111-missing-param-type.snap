@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn double(x) -> Int:\n    return x * 2\n\nfn main():\n    print(double(2))\n"
+---
+error[TDS0111]: parameter `x` needs a type
+  ┌─ TDS0111-missing-param-type.tds:1:12
+  │
+1 │ fn double(x) -> Int:
+  │            ^ expected `: Type` here
+  │
+  = note: function signatures are always written out in full
+  = help: for example: `x: Int`

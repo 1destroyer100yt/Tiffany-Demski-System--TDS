@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn area(w: Int, h: Int) -> Int = w * h\n\nfn main():\n    print(area(w: 2, h: 3))\n"
+---
+error[TDS0231]: function arguments can't be named
+  ┌─ TDS0231-named-argument-to-function.tds:4:16
+  │
+4 │     print(area(w: 2, h: 3))
+  │                ^ named argument
+  │
+  = note: named arguments are for creating structs and enum variants
+  = help: pass the arguments by position, without `name:`

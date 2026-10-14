@@ -1,0 +1,13 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "struct Player:\n    name: String\n\nfn save(player: take Player):\n    print(player.name)\n\nfn main():\n    let player = Player(name: \"Alex\")\n    save(player)\n"
+---
+error[TDS0404]: `save` takes ownership of this argument
+  ┌─ TDS0404-missing-take-marker.tds:9:10
+  │
+9 │     save(player)
+  │          ^^^^^^ needs `take`
+  │
+  = note: parameter `player` is declared `take`, so the value moves into `save`
+  = help: write `take player` to move it
+  = help: or `take player.clone()` to move a copy and keep the original

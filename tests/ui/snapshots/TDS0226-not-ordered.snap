@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let a = [1, 2]\n    let b = [3]\n    print(a < b)\n"
+---
+error[TDS0226]: `List[Int]` values can't be ordered with `<`
+  ┌─ TDS0226-not-ordered.tds:4:11
+  │
+4 │     print(a < b)
+  │           ^^^^^ no ordering
+  │
+  = note: `<`, `<=`, `>` and `>=` work on Int, Float, Char and String

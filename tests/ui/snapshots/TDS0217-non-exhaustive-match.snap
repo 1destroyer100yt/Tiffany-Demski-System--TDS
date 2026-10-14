@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "enum Shape:\n    Circle(radius: Float)\n    Rect(w: Float, h: Float)\n    Point\n\nfn area(s: Shape) -> Float:\n    match s:\n        Circle(r): 3.14 * r * r\n\nfn main():\n    print(area(Point))\n"
+---
+error[TDS0217]: this `match` doesn't cover every `Shape`
+  ┌─ TDS0217-non-exhaustive-match.tds:7:11
+  │
+7 │     match s:
+  │           ^ missing `Rect(..)`, `Point`
+  │
+  = help: add arms for `Rect(..)`, `Point`, or a `_: ...` arm to cover the rest

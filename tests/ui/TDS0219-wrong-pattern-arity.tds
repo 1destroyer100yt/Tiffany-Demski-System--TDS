@@ -1,0 +1,8 @@
+enum Shape:
+    Rect(w: Float, h: Float)
+    Point
+
+fn main():
+    match Point:
+        Rect(w): print(w)
+        Point: print(0)

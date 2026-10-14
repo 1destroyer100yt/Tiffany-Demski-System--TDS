@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    var n = 9223372036854775807\n    n += 1\n"
+---
+error[TDS0500]: integer overflow in `+`
+  ┌─ TDS0500-integer-overflow.tds:3:5
+  │
+3 │     n += 1
+  │     ^^^^^^ the result doesn't fit in `Int`
+  │
+  = note: `Int` holds values from -9223372036854775808 to 9223372036854775807

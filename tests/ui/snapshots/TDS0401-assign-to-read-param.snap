@@ -1,0 +1,13 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "struct Player:\n    health: Int\n\nfn damage(player: Player, amount: Int):\n    player.health -= amount\n\nfn main():\n    var p = Player(health: 10)\n    damage(p, 5)\n"
+---
+error[TDS0401]: can't change `player`: it's a read-only parameter
+  ┌─ TDS0401-assign-to-read-param.tds:5:5
+  │
+4 │ fn damage(player: Player, amount: Int):
+  │           ------ `player` is a read parameter
+5 │     player.health -= amount
+  │     ^^^^^^^^^^^^^ changed here
+  │
+  = help: to change the caller's value, declare it `player: mut Player`

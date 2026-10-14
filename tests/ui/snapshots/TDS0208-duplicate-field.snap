@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "struct Point:\n    x: Int\n    y: Int\n\nfn main():\n    let p = Point(x: 1, x: 2, y: 3)\n"
+---
+error[TDS0208]: field `x` is given twice
+  ┌─ TDS0208-duplicate-field.tds:6:25
+  │
+6 │     let p = Point(x: 1, x: 2, y: 3)
+  │                   -     ^ second value
+  │                   │      
+  │                   first value

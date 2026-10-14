@@ -1,0 +1,6 @@
+struct Motor:
+    name: String
+    voltage: Float32
+
+fn main():
+    print(1)

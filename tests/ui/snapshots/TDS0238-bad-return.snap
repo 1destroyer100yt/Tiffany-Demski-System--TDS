@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn log(message: String):\n    print(message)\n    return 1\n\nfn main():\n    log(\"x\")\n"
+---
+error[TDS0238]: this function doesn't return a value
+  ┌─ TDS0238-bad-return.tds:3:12
+  │
+3 │     return 1
+  │            ^ returns `Int`
+  │
+  = help: add `-> Int` to the function's signature, or remove the value

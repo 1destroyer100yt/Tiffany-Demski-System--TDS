@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let n = Int(\"42\")\n"
+---
+error[TDS0230]: can't convert `String` to `Int`
+  ┌─ TDS0230-invalid-conversion.tds:2:17
+  │
+2 │     let n = Int("42")
+  │                 ^^^^ this has type `String`
+  │
+  = help: to parse text, use `.to_int()`, which gives `none` if the text isn't a number

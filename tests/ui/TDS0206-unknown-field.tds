@@ -1,0 +1,7 @@
+struct Player:
+    name: String
+    health: Int
+
+fn main():
+    let p = Player(name: "Alex", health: 10)
+    print(p.helth)

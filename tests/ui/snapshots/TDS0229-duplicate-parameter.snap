@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn add(a: Int, a: Int) -> Int = a + a\n\nfn main():\n    print(add(1, 2))\n"
+---
+error[TDS0229]: parameter `a` appears twice
+  ┌─ TDS0229-duplicate-parameter.tds:1:16
+  │
+1 │ fn add(a: Int, a: Int) -> Int = a + a
+  │        -       ^ second parameter with this name
+  │        │        
+  │        first one here

@@ -1,0 +1,4 @@
+fn area(w: Int, h: Int) -> Int = w * h
+
+fn main():
+    print(area(w: 2, h: 3))

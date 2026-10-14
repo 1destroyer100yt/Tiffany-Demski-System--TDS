@@ -1,0 +1,9 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let total = 10\n    print(total(2))\n"
+---
+error[TDS0211]: a value of type `Int` can't be called
+  ┌─ TDS0211-not-callable.tds:3:11
+  │
+3 │     print(total(2))
+  │           ^^^^^ not a function

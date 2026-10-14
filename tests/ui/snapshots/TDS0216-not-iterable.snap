@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    for i in 10:\n        print(i)\n"
+---
+error[TDS0216]: can't loop over a value of type `Int`
+  ┌─ TDS0216-not-iterable.tds:2:14
+  │
+2 │     for i in 10:
+  │              ^^ this has type `Int`
+  │
+  = note: `for` works on lists, ranges and strings
+  = help: to count, use a range: `for i in 0..<n:`

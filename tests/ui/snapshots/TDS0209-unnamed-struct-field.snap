@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "struct Point:\n    x: Int\n    y: Int\n\nfn main():\n    let p = Point(1, 2)\n"
+---
+error[TDS0209]: fields of `Point` must be named
+  ┌─ TDS0209-unnamed-struct-field.tds:6:19
+  │
+6 │     let p = Point(1, 2)
+  │                   ^ unnamed field value
+  │
+  = help: write `Point(x: ..., y: ...)`

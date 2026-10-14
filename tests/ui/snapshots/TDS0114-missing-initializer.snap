@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    var total: Int\n    print(total)\n"
+---
+error[TDS0114]: `var total` needs an initial value
+  ┌─ TDS0114-missing-initializer.tds:2:5
+  │
+2 │     var total: Int
+  │     ^^^^^^^^^^^^^^ no `=` here
+  │
+  = note: every variable must hold a value from the moment it is declared
+  = help: give it a starting value: `var total = ...`

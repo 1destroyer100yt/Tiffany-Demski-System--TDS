@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    if true:\n        print(1)\n      print(2)\n"
+---
+error[TDS0002]: this line doesn't line up with any enclosing block
+  ┌─ TDS0002-misaligned-dedent.tds:4:1
+  │
+4 │       print(2)
+  │ ^^^^^^ 6 spaces here
+  │
+  = note: lines in the same block must line up; the nearby blocks are at 4 and 8 spaces
+  = help: indent this line by 4 or 8 spaces

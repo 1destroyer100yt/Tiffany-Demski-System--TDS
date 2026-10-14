@@ -1,0 +1,13 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn grow(xs: mut List[Int]):\n    xs.push(1)\n\nfn main():\n    let xs = [1, 2]\n    grow(mut xs)\n"
+---
+error[TDS0407]: can't lend `xs` with `mut`: it can't change
+  ┌─ TDS0407-mut-arg-immutable.tds:6:14
+  │
+5 │     let xs = [1, 2]
+  │         -- declared with `let` here
+6 │     grow(mut xs)
+  │              ^^ lent with `mut` here
+  │
+  = help: declare it with `var` instead: `var xs = ...`

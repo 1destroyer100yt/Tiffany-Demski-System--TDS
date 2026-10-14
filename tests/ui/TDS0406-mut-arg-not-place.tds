@@ -1,0 +1,5 @@
+fn grow(xs: mut List[Int]):
+    xs.push(1)
+
+fn main():
+    grow(mut [1, 2])

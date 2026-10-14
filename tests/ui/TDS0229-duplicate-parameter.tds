@@ -1,0 +1,4 @@
+fn add(a: Int, a: Int) -> Int = a + a
+
+fn main():
+    print(add(1, 2))

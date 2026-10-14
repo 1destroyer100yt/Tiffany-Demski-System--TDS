@@ -1,0 +1,3 @@
+fn main():
+    let name = "Tiffany"
+    print(name[0])

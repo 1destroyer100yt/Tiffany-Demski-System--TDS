@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "enum Shape:\n    Circle(radius: Float)\n    Point\n\nfn main():\n    let s = Point\n    match s:\n        Circel(r): print(r)\n        _: print(0)\n"
+---
+error[TDS0218]: `Circel` is not a variant of `Shape`
+  ┌─ TDS0218-pattern-type-mismatch.tds:8:9
+  │
+8 │         Circel(r): print(r)
+  │         ^^^^^^ unknown variant
+  │
+  = help: did you mean `Circle`?

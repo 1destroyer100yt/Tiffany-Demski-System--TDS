@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn greet(name: String) -> String:\n    return \"hi {name}\"\n\nfn main():\n    print(greet(42))\n"
+---
+error[TDS0203]: expected `String`, found `Int`
+  ┌─ TDS0203-mismatched-types.tds:5:17
+  │
+5 │     print(greet(42))
+  │                 ^^ expected `String`
+  │
+  = help: to turn a value into text, use `String(...)` or interpolation: `"{x}"`

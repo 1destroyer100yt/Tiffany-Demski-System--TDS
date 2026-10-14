@@ -204,3 +204,74 @@ health: 75)`; unit variants as `Point`; `none` as `none`.
 Deeper recursion panics with `TDS0504` instead of crashing the process. The
 interpreter runs on a thread with a 1 GiB stack (reserved, not used up
 front) so that limit fits.
+
+## Phase 1, step 6: static checker
+
+**D36. Bidirectional type checking.**
+Types are inferred inside function bodies. Where the context knows the type
+it wants (an annotation, a parameter, a return type, the other side of
+`==`), it passes it down. That's how `[]`, `none` and `if`/`match` values
+get their types. With no context, `[]` and `none` are errors (`TDS0221`)
+that suggest an annotation. Phase 3 (generics) will need real unification;
+this design leaves room for it.
+
+**D37. The only implicit conversion is `T` → `T?`.**
+An `Int` fits where an `Int?` is expected. Numbers never convert implicitly
+(`TDS0204`). Element types of lists must match exactly. A `mut` argument's
+type must match the parameter exactly, because the callee may write any
+value of the parameter's type into it.
+
+**D38. Copy types in Phase 1:** `Int`, `Float`, `Bool`, `Char`, `()`, ranges
+and optionals of these. Structs and enums are never Copy yet. The brief's
+"small plain structs" will become Copy through `@derive(Copy)` in Phase 3.
+
+**D39. The move analysis is flow-sensitive.**
+Each path through a function tracks which variables have been moved. Where
+paths meet (after `if`, `match`, `and`/`or`/`??`, loops), a variable moved
+on any path counts as moved. Paths that end in `return`, `break`,
+`continue` or `panic` don't count. Assigning a new value to a `var` makes
+it usable again. A use after a move is reported once (`TDS0412`).
+
+**D40. Moving inside a loop.**
+If a variable declared outside a loop is still moved at the end of an
+iteration (or at a `continue`), the next iteration would use it, so it's
+an error at the move (`TDS0411`). Moving and then `break`ing, or assigning
+a new value before the iteration ends, is fine.
+
+**D41. Borrow conflicts are checked per whole variable.**
+In a single call, a variable lent with `mut` can't appear as another
+argument (`TDS0410`), even if the two arguments are different fields.
+Reading it inside another argument's expression (`len(xs)`) is fine (D27).
+Phase 3's real borrow checker can allow disjoint fields.
+
+**D42. Capitalized names in patterns are always variants.**
+A capitalized name in a pattern must be a variant of the matched enum. A
+lowercase name binds the value. So a misspelled variant (`Circel`) is an
+error (`TDS0218`), not a silent catch-all.
+
+**D43. Variant names are global and unique.**
+`Circle(1.0)` works without the enum name, as in the brief. That needs
+variant names to be unique across all enums (`TDS0202`). `Shape.Circle(1.0)`
+and `Shape.Point` also work. Phase 2's modules will scope this properly.
+
+**D44. Other checker rules.**
+- Shadowing is allowed: `let x = 1` then `let x = "one"` in the same scope.
+- An unreachable match arm is a warning (`TDS0239`), not an error.
+- A user function with the same name as a built-in function replaces it.
+  Built-in *type* names can't be reused (`TDS0202`).
+- In a function returning `()`, a trailing expression's value is discarded.
+  `return value` in such a function is an error (`TDS0238`).
+- A `()` where a value is needed gets its own message (`TDS0222`, "this has
+  no value") instead of a type mismatch.
+- `.clone()` exists on every type. In Phase 1 it's the same as a plain copy
+  (D25); it's there so code is written the way Phase 3 will require.
+- A struct that contains itself directly or through optionals (not through
+  `List`) is infinitely large and rejected (`TDS0232`).
+
+**D45. One mistake, one diagnostic.**
+The UI test suite requires every test program to produce exactly one
+diagnostic. Several recovery rules exist only to keep it that way: an
+unterminated string closes the brackets opened earlier on its line; a
+stray closing bracket is dropped; a wrong closing bracket is treated as the
+right one; an expression whose type is unknown gets the `Error` type, which
+fits everywhere; a broken pattern turns off the exhaustiveness check.

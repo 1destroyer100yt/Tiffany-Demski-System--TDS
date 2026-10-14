@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    1 + 1 = 2\n"
+---
+error[TDS0105]: can't assign to this expression
+  ┌─ TDS0105-invalid-assignment-target.tds:2:5
+  │
+2 │     1 + 1 = 2
+  │     ^^^^^ not a variable, field or list element
+  │
+  = note: the left side of `=` must be a place that can hold a value

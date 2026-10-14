@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let c = 'ab'\n"
+---
+error[TDS0014]: invalid char literal
+  ┌─ TDS0014-invalid-char.tds:2:13
+  │
+2 │     let c = 'ab'
+  │             ^^^^ a char literal holds exactly one character
+  │
+  = help: for text, use a string: `"..."`

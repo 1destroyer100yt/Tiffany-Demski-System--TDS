@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    print(99999999999999999999)\n"
+---
+error[TDS0011]: integer literal is too large
+  ┌─ TDS0011-integer-too-large.tds:2:11
+  │
+2 │     print(99999999999999999999)
+  │           ^^^^^^^^^^^^^^^^^^^^ doesn't fit in 64 bits
+  │
+  = note: the largest integer literal is 18446744073709551615

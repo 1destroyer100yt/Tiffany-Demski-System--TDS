@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "struct Motor:\n    name: String\n    voltage: Float32\n\nfn main():\n    print(1)\n"
+---
+error[TDS0234]: `Float32` isn't available in the Phase 1 prototype
+  ┌─ TDS0234-unsupported-type.tds:3:14
+  │
+3 │     voltage: Float32
+  │              ^^^^^^^ not supported yet
+  │
+  = note: Phase 1 has Int, Float, Bool, Char, String, List[T], T? and your own structs and enums
+  = help: use `Float` (64-bit) for now

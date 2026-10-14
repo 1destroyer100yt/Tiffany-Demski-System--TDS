@@ -1,0 +1,13 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let items = [1, 2]\n    items.push(3)\n"
+---
+error[TDS0402]: can't call `push` on `items`: it can't change
+  ┌─ TDS0402-mutating-immutable.tds:3:5
+  │
+2 │     let items = [1, 2]
+  │         ----- declared with `let` here
+3 │     items.push(3)
+  │     ^^^^^ changed here
+  │
+  = help: declare it with `var` instead: `var items = ...`

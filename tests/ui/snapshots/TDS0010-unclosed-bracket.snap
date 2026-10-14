@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    print(len([1, 2])\n"
+---
+error[TDS0010]: `(` is never closed
+  ┌─ TDS0010-unclosed-bracket.tds:2:10
+  │
+2 │     print(len([1, 2])
+  │          ^ opened here
+  │
+  = help: add a matching `)`

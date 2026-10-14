@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let name = \"x\"\n    print(\"hi {name\")\n"
+---
+error[TDS0007]: `{` in string is never closed
+  ┌─ TDS0007-unterminated-interpolation.tds:3:15
+  │
+3 │     print("hi {name")
+  │               ^ interpolation starts here
+  │
+  = help: close it with `}`
+  = help: or write `\{` for a literal brace

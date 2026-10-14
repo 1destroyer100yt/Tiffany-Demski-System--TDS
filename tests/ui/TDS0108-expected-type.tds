@@ -1,0 +1,5 @@
+fn double(x: ) -> Int:
+    return x * 2
+
+fn main():
+    print(1)

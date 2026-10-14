@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "enum Shape:\n    Rect(w: Float, h: Float)\n    Point\n\nfn main():\n    match Point:\n        Rect(w): print(w)\n        Point: print(0)\n"
+---
+error[TDS0219]: `Rect` has 2 fields, but the pattern has 1
+  ┌─ TDS0219-wrong-pattern-arity.tds:7:9
+  │
+7 │         Rect(w): print(w)
+  │         ^^^^^^^ wrong number of fields
+  │
+  = help: write `Rect(_, _)`

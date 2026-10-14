@@ -1,0 +1,2 @@
+fn main():
+    let xs: List = [1, 2]

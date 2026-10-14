@@ -1,0 +1,9 @@
+struct Player:
+    name: String
+
+fn save(player: take Player):
+    print(player.name)
+
+fn main():
+    let player = Player(name: "Alex")
+    save(player)

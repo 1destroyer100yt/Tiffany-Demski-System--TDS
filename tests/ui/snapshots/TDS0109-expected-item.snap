@@ -1,0 +1,9 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "pub let x = 1\n\nfn main():\n    print(1)\n"
+---
+error[TDS0109]: expected `fn`, `struct` or `enum`, found `let`
+  ┌─ TDS0109-expected-item.tds:1:5
+  │
+1 │ pub let x = 1
+  │     ^^^ expected `fn`, `struct` or `enum`

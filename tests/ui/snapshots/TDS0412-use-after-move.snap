@@ -1,0 +1,15 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "struct Player:\n    name: String\n    health: Int\n\nfn save(player: take Player):\n    print(\"saved {player.name}\")\n\nfn main():\n    let player = Player(name: \"Alex\", health: 100)\n    save(take player)\n\n    print(player.health)\n"
+---
+error[TDS0412]: `player` was moved and can't be used here
+   ┌─ TDS0412-use-after-move.tds:12:11
+   │
+10 │     save(take player)
+   │          ----------- ownership moved into `save` here
+11 │ 
+12 │     print(player.health)
+   │           ^^^^^^ used after the move
+   │
+   = help: pass a read borrow instead: `save(player)`
+   = help: or move a copy and keep the original: `take player.clone()`

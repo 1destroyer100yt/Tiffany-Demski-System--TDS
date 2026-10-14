@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn sign(n: Int) -> Int:\n    if n > 0:\n        return 1\n    print(n)\n\nfn main():\n    print(sign(1))\n"
+---
+error[TDS0222]: expected a value of type `Int`, but this has no value
+  ┌─ TDS0222-missing-return.tds:4:5
+  │
+4 │     print(n)
+  │     ^^^^^^^^ this produces `()`, not a value
+  │
+  = note: a function body's value is its last expression
+  = help: end with an expression of type `Int`, or `return` one

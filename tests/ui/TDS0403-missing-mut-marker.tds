@@ -1,0 +1,9 @@
+struct Player:
+    health: Int
+
+fn damage(player: mut Player, amount: Int):
+    player.health -= amount
+
+fn main():
+    var player = Player(health: 100)
+    damage(player, 25)

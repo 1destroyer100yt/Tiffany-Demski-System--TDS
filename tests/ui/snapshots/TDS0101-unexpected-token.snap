@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main()\n    print(1)\n"
+---
+error[TDS0101]: expected `:` or `=`, found end of line
+  ┌─ TDS0101-unexpected-token.tds:1:10
+  │
+1 │ fn main()
+  │          ^ expected `:` or `=`
+  │
+  = help: start the function body with `:` and an indented block

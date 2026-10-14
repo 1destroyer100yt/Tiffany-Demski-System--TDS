@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    print(1)\n    else:\n        print(2)\n"
+---
+error[TDS0112]: `else` without a matching `if`
+  ┌─ TDS0112-else-without-if.tds:3:5
+  │
+3 │     else:
+  │     ^^^^ no `if` before this
+  │
+  = help: line `else` up with its `if`

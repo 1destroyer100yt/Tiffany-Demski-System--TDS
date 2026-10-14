@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn double(x: Int) -> Int = x * 2\n\nfn main():\n    let f = double\n"
+---
+error[TDS0237]: `double` is a function, not a value
+  ┌─ TDS0237-not-a-value.tds:4:13
+  │
+4 │     let f = double
+  │             ^^^^^^ function used as a value
+  │
+  = note: functions can't be stored in variables until Phase 4
+  = help: to call it, write `double(...)`

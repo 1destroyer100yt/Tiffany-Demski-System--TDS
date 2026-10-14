@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main(name: String):\n    print(name)\n"
+---
+error[TDS0228]: `main` must take no parameters and return nothing
+  ┌─ TDS0228-bad-main-signature.tds:1:4
+  │
+1 │ fn main(name: String):
+  │    ^^^^ wrong signature
+  │
+  = help: write it as `fn main():`; read command-line arguments with `args()`

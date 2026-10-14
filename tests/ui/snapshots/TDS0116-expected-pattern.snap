@@ -1,0 +1,9 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let x = 3\n    match x:\n        +: print(x)\n"
+---
+error[TDS0116]: expected a pattern, found `+`
+  ┌─ TDS0116-expected-pattern.tds:4:9
+  │
+4 │         +: print(x)
+  │         ^ expected a pattern

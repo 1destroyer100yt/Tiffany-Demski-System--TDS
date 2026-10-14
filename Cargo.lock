@@ -191,12 +191,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "tds_check"
+version = "0.1.0"
+dependencies = [
+ "tds_ast",
+ "tds_diagnostics",
+ "tds_parser",
+]
+
+[[package]]
 name = "tds_cli"
 version = "0.1.0"
 dependencies = [
  "codespan-reporting",
  "insta",
  "tds_ast",
+ "tds_check",
  "tds_diagnostics",
  "tds_interp",
  "tds_lexer",

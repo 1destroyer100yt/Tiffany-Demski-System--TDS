@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn forever(n: Int) -> Int = forever(n + 1)\n\nfn main():\n    print(forever(0))\n"
+---
+error[TDS0504]: stack overflow
+  ┌─ TDS0504-stack-overflow.tds:1:29
+  │
+1 │ fn forever(n: Int) -> Int = forever(n + 1)
+  │                             ^^^^^^^^^^^^^^ more than 10000 nested calls
+  │
+  = note: this is usually a recursive function that never reaches its base case

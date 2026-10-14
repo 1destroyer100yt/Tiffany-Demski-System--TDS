@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let count = 3\n    let half: Float = count / 2\n"
+---
+error[TDS0204]: expected `Float`, found `Int`
+  ┌─ TDS0204-no-implicit-conversion.tds:3:23
+  │
+3 │     let half: Float = count / 2
+  │                       ^^^^^^^^^ this has type `Int`
+  │
+  = note: TDS never converts between number types automatically
+  = help: convert it: `Float(...)`

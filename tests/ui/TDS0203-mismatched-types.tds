@@ -1,0 +1,5 @@
+fn greet(name: String) -> String:
+    return "hi {name}"
+
+fn main():
+    print(greet(42))

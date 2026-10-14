@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "struct Player:\n    name: String\n\nfn keep(name: take String):\n    print(name)\n\nfn main():\n    let p = Player(name: \"Alex\")\n    keep(take p.name)\n"
+---
+error[TDS0408]: can't move a value out of a field or list element
+  ┌─ TDS0408-move-out-of-field.tds:9:15
+  │
+9 │     keep(take p.name)
+  │               ^^^^^^ part of a larger value
+  │
+  = note: moving it would leave a hole in the struct or list
+  = help: move a copy instead: `take p.name.clone()`

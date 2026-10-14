@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let x = 5;\n"
+---
+error[TDS0004]: unexpected character ';'
+  ┌─ TDS0004-unexpected-character.tds:2:14
+  │
+2 │     let x = 5;
+  │              ^ not valid here
+  │
+  = help: TDS doesn't use semicolons; end the statement with a new line

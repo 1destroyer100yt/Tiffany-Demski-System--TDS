@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    print(\"value: {}\")\n"
+---
+error[TDS0013]: empty `{}` in string
+  ┌─ TDS0013-empty-interpolation.tds:2:19
+  │
+2 │     print("value: {}")
+  │                   ^^ nothing to interpolate
+  │
+  = help: put an expression inside, like `{name}`
+  = help: or write `\{\}` for literal braces

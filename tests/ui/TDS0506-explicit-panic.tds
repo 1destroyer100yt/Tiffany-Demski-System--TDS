@@ -1,0 +1,6 @@
+fn check_age(age: Int):
+    if age < 0:
+        panic("age can't be negative")
+
+fn main():
+    check_age(-1)

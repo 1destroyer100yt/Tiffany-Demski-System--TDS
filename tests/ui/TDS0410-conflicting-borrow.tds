@@ -1,0 +1,7 @@
+fn copy_into(dest: mut List[Int], src: List[Int]):
+    for x in src:
+        dest.push(x)
+
+fn main():
+    var xs = [1, 2]
+    copy_into(mut xs, xs)

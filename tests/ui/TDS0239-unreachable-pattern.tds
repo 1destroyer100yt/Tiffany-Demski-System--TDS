@@ -1,0 +1,7 @@
+fn describe(n: Int) -> String:
+    match n:
+        other: "some number"
+        0: "zero"
+
+fn main():
+    print(describe(0))

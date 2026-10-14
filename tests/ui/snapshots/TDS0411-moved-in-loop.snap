@@ -1,0 +1,16 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn consume(s: take String):\n    print(s)\n\nfn main():\n    let message = \"hi\"\n    for i in 0..<3:\n        consume(take message)\n"
+---
+error[TDS0411]: `message` is moved inside a loop
+  ┌─ TDS0411-moved-in-loop.tds:7:17
+  │
+5 │     let message = "hi"
+  │         ------- `message` is declared outside the loop
+6 │     for i in 0..<3:
+7 │         consume(take message)
+  │                 ^^^^^^^^^^^^ moved here, in one iteration
+  │
+  = note: the next iteration would use the value after it was moved
+  = help: move a copy instead: `take message.clone()`
+  = help: or give it a new value before the iteration ends

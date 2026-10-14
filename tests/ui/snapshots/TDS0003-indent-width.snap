@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n  print(1)\n"
+---
+error[TDS0003]: this line is indented 2 spaces deeper than its block; expected 4
+  ┌─ TDS0003-indent-width.tds:2:1
+  │
+2 │   print(1)
+  │ ^^ 2 spaces here
+  │
+  = help: indent this line to column 4 (4 spaces per level)

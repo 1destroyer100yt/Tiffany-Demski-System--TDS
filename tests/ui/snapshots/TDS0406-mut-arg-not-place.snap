@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn grow(xs: mut List[Int]):\n    xs.push(1)\n\nfn main():\n    grow(mut [1, 2])\n"
+---
+error[TDS0406]: only a variable, field or list element can be lent with `mut`
+  ┌─ TDS0406-mut-arg-not-place.tds:5:14
+  │
+5 │     grow(mut [1, 2])
+  │              ^^^^^^ this is a temporary value
+  │
+  = help: store it in a `var` first, then pass `mut` that variable

@@ -1,0 +1,7 @@
+fn sign(n: Int) -> Int:
+    if n > 0:
+        return 1
+    print(n)
+
+fn main():
+    print(sign(1))

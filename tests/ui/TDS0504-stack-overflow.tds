@@ -1,0 +1,4 @@
+fn forever(n: Int) -> Int = forever(n + 1)
+
+fn main():
+    print(forever(0))

@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "struct Node:\n    value: Int\n    next: Node?\n\nfn main():\n    print(1)\n"
+---
+error[TDS0232]: `Node` contains itself, so it would be infinitely large
+  ┌─ TDS0232-recursive-struct.tds:3:5
+  │
+3 │     next: Node?
+  │     ^^^^ `next` holds a `Node` directly
+  │
+  = note: the cycle is `Node` contains a `Node`
+  = help: store it in a list instead, like `List[Node]`; `Box` arrives in Phase 4

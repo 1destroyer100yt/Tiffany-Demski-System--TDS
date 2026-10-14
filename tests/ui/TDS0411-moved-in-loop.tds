@@ -1,0 +1,7 @@
+fn consume(s: take String):
+    print(s)
+
+fn main():
+    let message = "hi"
+    for i in 0..<3:
+        consume(take message)

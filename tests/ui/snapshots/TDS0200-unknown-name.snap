@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let count = 3\n    print(cout)\n"
+---
+error[TDS0200]: unknown name `cout`
+  ┌─ TDS0200-unknown-name.tds:3:11
+  │
+3 │     print(cout)
+  │           ^^^^ not found in this scope
+  │
+  = help: did you mean `count`?

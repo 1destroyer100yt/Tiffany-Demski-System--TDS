@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn find() -> Int??:\n    return none\n\nfn main():\n    print(1)\n"
+---
+error[TDS0225]: optionals can't be nested
+  ┌─ TDS0225-nested-optional.tds:1:14
+  │
+1 │ fn find() -> Int??:
+  │              ^^^^^ an optional of an optional
+  │
+  = help: use a single `?`

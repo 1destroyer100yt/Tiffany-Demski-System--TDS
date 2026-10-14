@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    print(1))\n"
+---
+error[TDS0008]: unmatched closing `)`
+  ┌─ TDS0008-unmatched-close-bracket.tds:2:13
+  │
+2 │     print(1))
+  │             ^ no matching opening bracket
+  │
+  = help: remove it, or add the missing opening bracket

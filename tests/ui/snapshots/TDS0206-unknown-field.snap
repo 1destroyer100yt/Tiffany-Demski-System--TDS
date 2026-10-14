@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "struct Player:\n    name: String\n    health: Int\n\nfn main():\n    let p = Player(name: \"Alex\", health: 10)\n    print(p.helth)\n"
+---
+error[TDS0206]: `Player` has no field `helth`
+  ┌─ TDS0206-unknown-field.tds:7:13
+  │
+7 │     print(p.helth)
+  │             ^^^^^ unknown field
+  │
+  = help: did you mean `health`?

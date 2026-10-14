@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    print(\"hello)\n"
+---
+error[TDS0005]: string is never closed
+  ┌─ TDS0005-unterminated-string.tds:2:11
+  │
+2 │     print("hello)
+  │           ^^^^^^^ this string
+  │
+  = note: strings can't span lines
+  = help: add a closing `"`

@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let x = 1\n    if x = 1:\n        print(x)\n"
+---
+error[TDS0113]: `=` assigns; it can't be used in a condition
+  ┌─ TDS0113-assign-in-condition.tds:3:10
+  │
+3 │     if x = 1:
+  │          ^ assignment here
+  │
+  = help: to compare two values, use `==`

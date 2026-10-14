@@ -1,0 +1,14 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn area() -> Int = 1\n\nfn area() -> Int = 2\n\nfn main():\n    print(area())\n"
+---
+error[TDS0202]: `area` is defined more than once
+  ┌─ TDS0202-duplicate-definition.tds:3:4
+  │
+1 │ fn area() -> Int = 1
+  │    ---- first defined here
+2 │ 
+3 │ fn area() -> Int = 2
+  │    ^^^^ second definition
+  │
+  = help: rename one of them

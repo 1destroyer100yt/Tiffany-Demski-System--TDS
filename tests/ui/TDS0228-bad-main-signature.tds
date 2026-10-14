@@ -1,0 +1,2 @@
+fn main(name: String):
+    print(name)

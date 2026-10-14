@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    if true:\n    print(1)\n"
+---
+error[TDS0102]: expected an indented block
+  ┌─ TDS0102-expected-block.tds:2:13
+  │
+2 │     if true:
+  │             ^ a block should start after this `:`
+  │
+  = help: indent the lines of the block by 4 more spaces

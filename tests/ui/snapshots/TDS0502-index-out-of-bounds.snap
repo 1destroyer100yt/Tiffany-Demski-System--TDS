@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let xs = [1, 2, 3]\n    print(xs[3])\n"
+---
+error[TDS0502]: index 3 is out of bounds
+  ┌─ TDS0502-index-out-of-bounds.tds:3:14
+  │
+3 │     print(xs[3])
+  │              ^ the list has 3 elements
+  │
+  = note: valid indexes are 0..<3

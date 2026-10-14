@@ -1,0 +1,9 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let x = 1\n    if x > 0:\n        break\n"
+---
+error[TDS0223]: `break` outside a loop
+  ┌─ TDS0223-break-outside-loop.tds:4:9
+  │
+4 │         break
+  │         ^^^^^ `break` must be inside `while` or `for`

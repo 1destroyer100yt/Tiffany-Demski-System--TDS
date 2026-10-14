@@ -1,0 +1,6 @@
+impl Motor:
+    fn start(mut self):
+        self.running = true
+
+fn main():
+    print(1)

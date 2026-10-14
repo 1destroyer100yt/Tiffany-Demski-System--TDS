@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    var xs = [1, 2]\n    xs.append(3)\n"
+---
+error[TDS0210]: `List[Int]` has no method `append`
+  ┌─ TDS0210-unknown-method.tds:3:8
+  │
+3 │     xs.append(3)
+  │        ^^^^^^ unknown method
+  │
+  = note: `List[Int]` has: len, is_empty, contains, push, pop, clone

@@ -1,0 +1,14 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn keep(name: take String):\n    print(name)\n\nfn relay(name: String):\n    keep(take name)\n\nfn main():\n    relay(\"x\")\n"
+---
+error[TDS0409]: can't move `name`: it's only borrowed
+  ┌─ TDS0409-move-out-of-borrow.tds:5:15
+  │
+4 │ fn relay(name: String):
+  │          ---- `name` is a read parameter, so the caller still owns it
+5 │     keep(take name)
+  │               ^^^^ can't be moved
+  │
+  = help: move a copy instead: `take name.clone()`
+  = help: or declare the parameter as `name: take String` to receive ownership

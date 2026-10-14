@@ -1,0 +1,8 @@
+fn keep(name: take String):
+    print(name)
+
+fn relay(name: String):
+    keep(take name)
+
+fn main():
+    relay("x")

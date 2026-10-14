@@ -1,0 +1,3 @@
+fn main():
+    let score = 10
+    score += 5

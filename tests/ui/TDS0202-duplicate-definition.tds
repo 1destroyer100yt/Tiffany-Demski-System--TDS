@@ -1,0 +1,6 @@
+fn area() -> Int = 1
+
+fn area() -> Int = 2
+
+fn main():
+    print(area())

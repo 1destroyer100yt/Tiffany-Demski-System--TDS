@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    var x = 1\n    let y = mut x\n"
+---
+error[TDS0115]: `mut` can only mark a call argument
+  ┌─ TDS0115-misplaced-mode.tds:3:13
+  │
+3 │     let y = mut x
+  │             ^^^ not allowed here
+  │
+  = note: write `mut` in a call to lend a variable for changing: `f(mut x)`
+  = help: to declare a variable that can change, use `var`

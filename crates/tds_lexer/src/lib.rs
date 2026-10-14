@@ -366,12 +366,7 @@ impl<'a> Lexer<'a> {
     fn close_open_brackets(&mut self) {
         let open_brackets = std::mem::take(&mut self.brackets);
         for &(open, _) in open_brackets.iter().rev() {
-            let kind = match open {
-                '(' => TokenKind::RParen,
-                '[' => TokenKind::RBracket,
-                _ => TokenKind::RBrace,
-            };
-            self.push(kind, Span::empty(self.end));
+            self.push(closing_kind(open), Span::empty(self.end));
         }
         for (open, span) in open_brackets {
             let close = closing_for(open);
@@ -546,8 +541,10 @@ impl<'a> Lexer<'a> {
             // The common case: it closes the innermost bracket.
             Some(i) if i == self.brackets.len() - 1 => {
                 self.brackets.pop();
+                self.push(closing_kind(open), span);
             }
             // It closes an outer bracket; the inner ones were never closed.
+            // Close them here so the parser sees balanced brackets.
             Some(i) => {
                 let (inner, inner_span) = *self.brackets.last().unwrap();
                 self.error(
@@ -558,39 +555,36 @@ impl<'a> Lexer<'a> {
                     .with_primary(span, "doesn't match")
                     .with_secondary(inner_span, format!("`{inner}` opened here")),
                 );
-                self.brackets.truncate(i);
-            }
-            None => match self.brackets.last().copied() {
-                None => self.error(
-                    Diagnostic::error(
-                        codes::UNMATCHED_CLOSE_BRACKET,
-                        format!("unmatched closing `{c}`"),
-                    )
-                    .with_primary(span, "no matching opening bracket")
-                    .with_help("remove it, or add the missing opening bracket"),
-                ),
-                // Most likely a typo for the innermost closer, so treat it
-                // as one; otherwise `f(a]` would also report `(` unclosed.
-                Some((inner, inner_span)) => {
-                    self.error(
-                        Diagnostic::error(
-                            codes::MISMATCHED_BRACKET,
-                            format!("expected `{}` but found `{c}`", closing_for(inner)),
-                        )
-                        .with_primary(span, "doesn't match")
-                        .with_secondary(inner_span, format!("`{inner}` opened here")),
-                    );
-                    self.brackets.pop();
+                for (dropped, _) in self.brackets.split_off(i + 1).into_iter().rev() {
+                    self.push(closing_kind(dropped), Span::empty(start));
                 }
-            },
+                self.brackets.pop();
+                self.push(closing_kind(open), span);
+            }
+            // Most likely a typo for the innermost closer, so treat it as
+            // one and emit the closer that was meant.
+            None if !self.brackets.is_empty() => {
+                let (inner, inner_span) = self.brackets.pop().unwrap();
+                self.error(
+                    Diagnostic::error(
+                        codes::MISMATCHED_BRACKET,
+                        format!("expected `{}` but found `{c}`", closing_for(inner)),
+                    )
+                    .with_primary(span, "doesn't match")
+                    .with_secondary(inner_span, format!("`{inner}` opened here")),
+                );
+                self.push(closing_kind(inner), span);
+            }
+            // Nothing to close: report it and drop the token.
+            None => self.error(
+                Diagnostic::error(
+                    codes::UNMATCHED_CLOSE_BRACKET,
+                    format!("unmatched closing `{c}`"),
+                )
+                .with_primary(span, "no matching opening bracket")
+                .with_help("remove it, or add the missing opening bracket"),
+            ),
         }
-
-        let kind = match c {
-            ')' => TokenKind::RParen,
-            ']' => TokenKind::RBracket,
-            _ => TokenKind::RBrace,
-        };
-        self.push(kind, span);
     }
 
     fn lex_ident(&mut self) {
@@ -723,10 +717,12 @@ impl<'a> Lexer<'a> {
         self.bump(); // opening quote
         let mut parts = Vec::new();
         let mut text = String::new();
+        let mut terminated = true;
 
         loop {
             match self.peek() {
                 None | Some('\n') | Some('\r') => {
+                    terminated = false;
                     self.error(
                         Diagnostic::error(codes::UNTERMINATED_STRING, "string is never closed")
                             .with_primary(Span::new(start, self.pos), "this string")
@@ -750,6 +746,7 @@ impl<'a> Lexer<'a> {
                     }
                     if !self.lex_interpolation(&mut parts) {
                         // Already reported; the rest of the line was eaten.
+                        terminated = false;
                         break;
                     }
                 }
@@ -764,6 +761,26 @@ impl<'a> Lexer<'a> {
             parts.push(StrPart::Text(text));
         }
         self.push(TokenKind::Str(parts), Span::new(start, self.pos));
+        if !terminated {
+            self.close_brackets_from_line(start);
+        }
+    }
+
+    /// After an unterminated string, any bracket opened earlier on the same
+    /// line was probably closed inside the string, as in `print("hi)`.
+    /// Close those brackets quietly so the next lines keep their layout and
+    /// the mistake is reported only once.
+    fn close_brackets_from_line(&mut self, string_start: usize) {
+        let line_start = self.src[..string_start]
+            .rfind(['\n', '\r'])
+            .map_or(0, |i| i + 1);
+        while let Some(&(open, span)) = self.brackets.last() {
+            if span.start < line_start {
+                break;
+            }
+            self.brackets.pop();
+            self.push(closing_kind(open), Span::empty(self.pos));
+        }
     }
 
     /// Lexes a `\` escape. Returns the character, or `None` after reporting
@@ -942,8 +959,14 @@ impl<'a> Lexer<'a> {
         let start = self.pos;
 
         // `'name` not followed by a closing quote is a lifetime.
-        let is_lifetime =
-            self.peek_nth(1).is_some_and(is_ident_start) && self.peek_nth(2) != Some('\'');
+        // With a closing quote after the name (`'ab'`) it's a malformed
+        // char literal instead.
+        let is_lifetime = self.peek_nth(1).is_some_and(is_ident_start) && {
+            let name_len = self.src[self.pos + 1..self.end]
+                .find(|c: char| !is_ident_continue(c))
+                .unwrap_or(self.end - self.pos - 1);
+            self.char_at(self.pos + 1 + name_len) != Some('\'')
+        };
         if is_lifetime {
             self.bump(); // quote
             let name_start = self.pos;
@@ -1011,6 +1034,14 @@ fn closing_for(open: char) -> char {
         '(' => ')',
         '[' => ']',
         _ => '}',
+    }
+}
+
+fn closing_kind(open: char) -> TokenKind {
+    match open {
+        '(' => TokenKind::RParen,
+        '[' => TokenKind::RBracket,
+        _ => TokenKind::RBrace,
     }
 }
 

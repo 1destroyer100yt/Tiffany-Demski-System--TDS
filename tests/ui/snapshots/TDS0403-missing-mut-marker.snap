@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "struct Player:\n    health: Int\n\nfn damage(player: mut Player, amount: Int):\n    player.health -= amount\n\nfn main():\n    var player = Player(health: 100)\n    damage(player, 25)\n"
+---
+error[TDS0403]: `damage` changes this argument, so it must be marked `mut`
+  ┌─ TDS0403-missing-mut-marker.tds:9:12
+  │
+9 │     damage(player, 25)
+  │            ^^^^^^ needs `mut`
+  │
+  = note: parameter `player` is declared `mut`; the change is visible to the caller
+  = help: write `mut player`

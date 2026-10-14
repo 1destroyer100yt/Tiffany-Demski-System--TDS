@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let big = 1e300\n    print(Int(big))\n"
+---
+error[TDS0505]: can't convert 1e300 to `Int`
+  ┌─ TDS0505-conversion-failed.tds:3:15
+  │
+3 │     print(Int(big))
+  │               ^^^ out of range for `Int`
+  │
+  = help: check the value first, or keep it as a `Float`

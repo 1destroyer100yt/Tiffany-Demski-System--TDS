@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let s = \"Score: \" + 10\n"
+---
+error[TDS0213]: can't use `+` on `String` and `Int`
+  ┌─ TDS0213-bad-binary-operands.tds:2:13
+  │
+2 │     let s = "Score: " + 10
+  │             ^^^^^^^^^^^^^^ unsupported operands
+  │
+  = help: to build text from other values, use interpolation: `"{a}{b}"`

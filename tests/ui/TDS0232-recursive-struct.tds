@@ -1,0 +1,6 @@
+struct Node:
+    value: Int
+    next: Node?
+
+fn main():
+    print(1)

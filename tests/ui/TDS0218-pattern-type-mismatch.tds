@@ -1,0 +1,9 @@
+enum Shape:
+    Circle(radius: Float)
+    Point
+
+fn main():
+    let s = Point
+    match s:
+        Circel(r): print(r)
+        _: print(0)

@@ -1,0 +1,13 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "struct P:\n    x: Int\n    y: Int\n\nfn main():\n    let p = P(x: 1, 2)\n"
+---
+error[TDS0110]: positional argument after a named argument
+  ┌─ TDS0110-positional-after-named.tds:6:21
+  │
+6 │     let p = P(x: 1, 2)
+  │               ----  ^ positional argument
+  │               │      
+  │               named argument
+  │
+  = help: put positional arguments first, or name this one too

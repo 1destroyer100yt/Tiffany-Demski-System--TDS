@@ -1,0 +1,9 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let x = not 5\n"
+---
+error[TDS0214]: `not` needs a `Bool`, found `Int`
+  ┌─ TDS0214-bad-unary-operand.tds:2:17
+  │
+2 │     let x = not 5
+  │                 ^ this has type `Int`

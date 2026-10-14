@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "enum Shape:\n    Circle(radius: Float)\n    Point\n\nfn main():\n    let s = Circle\n"
+---
+error[TDS0236]: `Circle` needs its field values
+  ┌─ TDS0236-variant-arguments.tds:6:13
+  │
+6 │     let s = Circle
+  │             ^^^^^^ `Circle` has 1 field
+  │
+  = help: write `Circle(...)`

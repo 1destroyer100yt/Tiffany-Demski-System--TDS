@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    print(\"C:\\path\")\n"
+---
+error[TDS0006]: unknown escape `\p`
+  ┌─ TDS0006-invalid-escape.tds:2:14
+  │
+2 │     print("C:\path")
+  │              ^^ unknown escape
+  │
+  = note: valid escapes are \n \t \r \0 \\ \" \' \{ \} and \u{...}

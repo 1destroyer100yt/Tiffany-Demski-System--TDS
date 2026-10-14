@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n\tprint(1)\n"
+---
+error[TDS0001]: tab characters are not allowed in TDS source
+  ┌─ TDS0001-tab.tds:2:1
+  │
+2 │     print(1)
+  │ ^^^^ tab here
+  │
+  = note: TDS uses spaces only, so code looks the same in every editor
+  = help: replace each tab with 4 spaces

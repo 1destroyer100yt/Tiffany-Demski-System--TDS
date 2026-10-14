@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let n = \"abc\".to_int()\n    print(n! + 1)\n"
+---
+error[TDS0503]: unwrapped `none`
+  ┌─ TDS0503-unwrap-none.tds:3:11
+  │
+3 │     print(n! + 1)
+  │           ^^ this value was `none`
+  │
+  = help: use `?? default` to supply a fallback value instead

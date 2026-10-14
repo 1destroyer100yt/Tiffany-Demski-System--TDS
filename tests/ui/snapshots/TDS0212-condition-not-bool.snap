@@ -1,0 +1,12 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let n = 3\n    if n:\n        print(n)\n"
+---
+error[TDS0212]: `if` condition must be a `Bool`
+  ┌─ TDS0212-condition-not-bool.tds:3:8
+  │
+3 │     if n:
+  │        ^ this has type `Int`
+  │
+  = note: TDS doesn't treat numbers, strings or lists as true or false
+  = help: compare it explicitly, like `x != 0`

@@ -1,0 +1,13 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let x = 5\n    if 0 < x < 10:\n        print(x)\n"
+---
+error[TDS0107]: comparisons can't be chained
+  ┌─ TDS0107-chained-comparison.tds:3:14
+  │
+3 │     if 0 < x < 10:
+  │          -   ^ second comparison
+  │          │    
+  │          first comparison
+  │
+  = help: combine them with `and`, like `a < b and b < c`

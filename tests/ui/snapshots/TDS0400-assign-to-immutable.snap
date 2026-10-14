@@ -1,0 +1,13 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "fn main():\n    let score = 10\n    score += 5\n"
+---
+error[TDS0400]: can't change `score`: it was declared with `let`
+  ┌─ TDS0400-assign-to-immutable.tds:3:5
+  │
+2 │     let score = 10
+  │         ----- declared with `let` here
+3 │     score += 5
+  │     ^^^^^ changed here
+  │
+  = help: declare it with `var` instead: `var score = ...`
