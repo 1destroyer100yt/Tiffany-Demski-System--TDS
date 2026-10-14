@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "use shop.cart\n\nfn main():\n    print(1)\n"
+---
+error[TDS0240]: can't find module `shop.cart`
+  ┌─ TDS0240-unknown-module/main.tds:1:1
+  │
+1 │ use shop.cart
+  │ ^^^^^^^^^^^^^ no such module
+  │
+  = note: module `shop.cart` would be the file `shop/cart.tds`, next to the main file

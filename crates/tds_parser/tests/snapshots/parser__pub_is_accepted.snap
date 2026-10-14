@@ -1,6 +1,7 @@
 ---
 source: crates/tds_parser/tests/parser.rs
+assertion_line: 233
 expression: "parse_ok(\"pub fn f():\\n    g()\\n\")"
 ---
-fn f() -> ()
+pub fn f() -> ()
   (call g)

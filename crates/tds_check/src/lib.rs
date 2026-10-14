@@ -78,7 +78,7 @@ impl ReplChecker {
             .iter()
             .filter_map(|e| match e {
                 TopLevel::Item(item) => Some(item),
-                TopLevel::Stmt(_) => None,
+                TopLevel::Stmt(_) | TopLevel::Use(_) => None,
             })
             .collect();
         let fns = self.checker.declare_items(items, true);
@@ -2063,7 +2063,7 @@ impl Checker {
         };
         match &pattern.kind {
             PatternKind::Wildcard => all,
-            PatternKind::Name(name) if name.starts_with(|c: char| c.is_uppercase()) => {
+            PatternKind::Name(name) if short_name(name).starts_with(|c: char| c.is_uppercase()) => {
                 // Capitalized names are variants, never new variables, so a
                 // misspelled variant is an error instead of a catch-all.
                 match self.variant_of(st, name) {
@@ -3196,4 +3196,9 @@ fn edit_distance(a: &str, b: &str) -> usize {
         }
     }
     d[a.len()][b.len()]
+}
+
+/// The name without its module path: `motors.types.Motor` → `Motor`.
+fn short_name(name: &str) -> &str {
+    name.rsplit('.').next().unwrap_or(name)
 }

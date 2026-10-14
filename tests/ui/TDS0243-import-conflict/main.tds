@@ -1,0 +1,6 @@
+use shop.prices.{total}
+
+fn total() -> Int = 0
+
+fn main():
+    print(total())

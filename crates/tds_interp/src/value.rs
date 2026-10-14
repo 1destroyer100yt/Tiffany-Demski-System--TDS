@@ -165,7 +165,7 @@ impl Value {
                 out.push(']');
             }
             Value::Struct(s) => {
-                out.push_str(&s.info.name);
+                out.push_str(short_name(&s.info.name));
                 out.push('(');
                 for (i, (name, value)) in s.info.field_names.iter().zip(&s.fields).enumerate() {
                     if i > 0 {
@@ -177,7 +177,7 @@ impl Value {
                 out.push(')');
             }
             Value::Variant(v) => {
-                out.push_str(&v.info.name);
+                out.push_str(short_name(&v.info.name));
                 if v.fields.is_empty() {
                     return;
                 }
@@ -213,4 +213,10 @@ impl fmt::Display for Value {
         self.write(&mut out, false);
         f.write_str(&out)
     }
+}
+
+/// Values print with the short name of their type or variant, without the
+/// module path the resolver added (`motors.types.Motor` → `Motor`).
+fn short_name(name: &str) -> &str {
+    name.rsplit('.').next().unwrap_or(name)
 }

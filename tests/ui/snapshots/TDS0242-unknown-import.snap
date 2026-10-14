@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "use shop.prices.{total, tax}\n\nfn main():\n    print(total([1]))\n"
+---
+error[TDS0242]: there's no `tax` to import here
+  ┌─ TDS0242-unknown-import/main.tds:1:25
+  │
+1 │ use shop.prices.{total, tax}
+  │                         ^^^ not declared in that module
+  │
+  = note: the module declares: total

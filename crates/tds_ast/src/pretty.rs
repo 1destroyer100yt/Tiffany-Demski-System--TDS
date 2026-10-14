@@ -12,6 +12,9 @@ use crate::*;
 
 pub fn dump_module(module: &Module) -> String {
     let mut p = Printer::default();
+    for u in &module.uses {
+        p.line(0, &use_decl(u));
+    }
     for item in &module.items {
         p.item(item, 0);
     }
@@ -22,6 +25,7 @@ pub fn dump_repl(entries: &[TopLevel]) -> String {
     let mut p = Printer::default();
     for entry in entries {
         match entry {
+            TopLevel::Use(u) => p.line(0, &use_decl(u)),
             TopLevel::Item(item) => p.item(item, 0),
             TopLevel::Stmt(stmt) => p.stmt(stmt, 0),
         }
@@ -46,6 +50,7 @@ impl Printer {
     fn item(&mut self, item: &Item, indent: usize) {
         match item {
             Item::Fn(f) => {
+                let vis = if f.is_pub { "pub " } else { "" };
                 let params: Vec<String> = f
                     .params
                     .iter()
@@ -57,12 +62,13 @@ impl Printer {
                 let ret = f.ret.as_ref().map_or("()".to_string(), ty);
                 self.line(
                     indent,
-                    &format!("fn {}({}) -> {}", f.name.name, params.join(", "), ret),
+                    &format!("{vis}fn {}({}) -> {}", f.name.name, params.join(", "), ret),
                 );
                 self.block(&f.body, indent + 1);
             }
             Item::Struct(s) => {
-                self.line(indent, &format!("struct {}", s.name.name));
+                let vis = if s.is_pub { "pub " } else { "" };
+                self.line(indent, &format!("{vis}struct {}", s.name.name));
                 for field in &s.fields {
                     let mut text = format!("{}: {}", field.name.name, ty(&field.ty));
                     if let Some(default) = &field.default {
@@ -72,7 +78,8 @@ impl Printer {
                 }
             }
             Item::Enum(e) => {
-                self.line(indent, &format!("enum {}", e.name.name));
+                let vis = if e.is_pub { "pub " } else { "" };
+                self.line(indent, &format!("{vis}enum {}", e.name.name));
                 for variant in &e.variants {
                     if variant.fields.is_empty() {
                         self.line(indent + 1, &variant.name.name);
@@ -178,6 +185,17 @@ impl Printer {
                 self.line(indent, "else");
                 self.line(indent + 1, &expr(other));
             }
+        }
+    }
+}
+
+fn use_decl(u: &UseDecl) -> String {
+    let path: Vec<&str> = u.path.iter().map(|i| i.name.as_str()).collect();
+    match &u.names {
+        None => format!("use {}", path.join(".")),
+        Some(names) => {
+            let names: Vec<&str> = names.iter().map(|i| i.name.as_str()).collect();
+            format!("use {}.{{{}}}", path.join("."), names.join(", "))
         }
     }
 }

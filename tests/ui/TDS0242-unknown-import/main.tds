@@ -1,0 +1,4 @@
+use shop.prices.{total, tax}
+
+fn main():
+    print(total([1]))

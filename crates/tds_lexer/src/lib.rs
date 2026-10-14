@@ -40,6 +40,43 @@ pub struct LexOutput {
     pub errors: Vec<Diagnostic>,
 }
 
+/// Lexes a source file whose text starts at global offset `base`.
+///
+/// When a program has several files, each file gets its own range of
+/// offsets, so a single `Span` says which file it's in (see the driver's
+/// source map). All spans in the output, including those of interpolated
+/// expressions and diagnostics, are shifted by `base`.
+pub fn lex_at(src: &str, base: usize) -> LexOutput {
+    let mut out = lex(src);
+    if base != 0 {
+        shift_tokens(&mut out.tokens, base);
+        for diag in &mut out.errors {
+            for label in &mut diag.labels {
+                label.span = shift(label.span, base);
+            }
+        }
+    }
+    out
+}
+
+fn shift(span: Span, base: usize) -> Span {
+    Span::new(span.start + base, span.end + base)
+}
+
+fn shift_tokens(tokens: &mut [Token], base: usize) {
+    for token in tokens {
+        token.span = shift(token.span, base);
+        if let TokenKind::Str(parts) = &mut token.kind {
+            for part in parts {
+                if let StrPart::Interp { tokens, span } = part {
+                    *span = shift(*span, base);
+                    shift_tokens(tokens, base);
+                }
+            }
+        }
+    }
+}
+
 /// Lexes a whole source file.
 pub fn lex(src: &str) -> LexOutput {
     let mut lexer = Lexer::new(src, 0, src.len());

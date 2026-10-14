@@ -126,6 +126,16 @@ for a different error.
 | TDS0238 | `return` with a value in a function that returns `()`, or without one in a function that returns a value. |
 | TDS0239 | A match arm that can never run because an earlier arm covers it. |
 
+### Modules
+
+| Code | Meaning |
+|---|---|
+| TDS0240 | `use` names a module whose file doesn't exist. |
+| TDS0241 | An item from another module that isn't declared `pub`. |
+| TDS0242 | `use` names an item that the module doesn't declare. |
+| TDS0243 | Two imports, or an import and a declaration, with the same name. |
+| TDS0244 | A module name used as a value. |
+
 ### Ownership and parameter modes
 
 | Code | Meaning |

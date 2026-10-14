@@ -9,8 +9,10 @@
 //! moves to TIR.
 
 mod pretty;
+mod visit;
 
 pub use pretty::{dump_module, dump_repl};
+pub use visit::{for_each_expr_mut, number_exprs};
 
 use tds_diagnostics::Span;
 
@@ -25,15 +27,27 @@ pub struct Ident {
 // Top level
 // ======================================================================
 
-/// A whole source file: a list of items.
+/// A whole source file: its imports and its items.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Module {
+    pub uses: Vec<UseDecl>,
     pub items: Vec<Item>,
+}
+
+/// `use a.b.c` or `use a.b.{X, Y}`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct UseDecl {
+    /// The dotted path. For `use a.b.{X, Y}` this is `a.b`.
+    pub path: Vec<Ident>,
+    /// The names in braces, for the `{X, Y}` form.
+    pub names: Option<Vec<Ident>>,
+    pub span: Span,
 }
 
 /// One entry typed at the REPL: items and statements may be mixed.
 #[derive(Debug, Clone, PartialEq)]
 pub enum TopLevel {
+    Use(UseDecl),
     Item(Item),
     Stmt(Stmt),
 }
@@ -46,6 +60,14 @@ pub enum Item {
 }
 
 impl Item {
+    pub fn is_pub(&self) -> bool {
+        match self {
+            Item::Fn(f) => f.is_pub,
+            Item::Struct(s) => s.is_pub,
+            Item::Enum(e) => e.is_pub,
+        }
+    }
+
     pub fn name(&self) -> &Ident {
         match self {
             Item::Fn(f) => &f.name,
@@ -57,6 +79,7 @@ impl Item {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FnDecl {
+    pub is_pub: bool,
     pub name: Ident,
     pub params: Vec<Param>,
     /// `None` means the function returns `()`.
@@ -97,6 +120,7 @@ pub struct Param {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct StructDecl {
+    pub is_pub: bool,
     pub name: Ident,
     pub fields: Vec<FieldDecl>,
     pub span: Span,
@@ -112,6 +136,7 @@ pub struct FieldDecl {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct EnumDecl {
+    pub is_pub: bool,
     pub name: Ident,
     pub variants: Vec<VariantDecl>,
     pub span: Span,
@@ -240,10 +265,33 @@ impl AssignOp {
 // Expressions
 // ======================================================================
 
+/// Identifies an expression, so later stages can attach information to it
+/// (its type, what a name refers to) in side tables. The parser leaves ids
+/// unset; [`number_exprs`] assigns them once the whole program is known.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct ExprId(pub u32);
+
+impl ExprId {
+    /// The id of an expression that hasn't been numbered yet.
+    pub const UNSET: ExprId = ExprId(u32::MAX);
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Expr {
+    pub id: ExprId,
     pub kind: ExprKind,
     pub span: Span,
+}
+
+impl Expr {
+    /// A new expression without an id.
+    pub fn new(kind: ExprKind, span: Span) -> Expr {
+        Expr {
+            id: ExprId::UNSET,
+            kind,
+            span,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]

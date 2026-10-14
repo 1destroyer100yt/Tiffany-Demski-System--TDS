@@ -581,6 +581,48 @@ return type must return a value of that type.
 This match arm can never run, because an earlier arm already matches every
 value it could match. This is a warning: the program still runs.
 
+## TDS0240
+
+`use` names a module that doesn't exist.
+
+Modules are files. `use shop.cart` looks for `shop/cart.tds` in the
+directory of the main file; `use shop.cart.{Item}` imports `Item` from that
+file. Check the spelling and the file's location.
+
+## TDS0241
+
+An item from another module isn't `pub`.
+
+Items are private to their module unless declared `pub`:
+
+    // shop/prices.tds
+    pub fn total(prices: List[Int]) -> Int: ...   // usable from other modules
+    fn discount(price: Int) -> Int: ...           // only inside prices.tds
+
+Add `pub` to the declaration if other modules should use it. An enum's
+variants are public when the enum is.
+
+## TDS0242
+
+`use` imports a name that the module doesn't declare. The message lists
+what the module does declare.
+
+## TDS0243
+
+An import uses a name that is already taken in this module, by a
+declaration or by another import.
+
+Import the module instead and refer to the item through it:
+
+    use shop.prices
+    ...
+    prices.total(xs)
+
+## TDS0244
+
+A module name is used as a value. A module isn't a value; use one of its
+items: `prices.total(xs)`, `shapes.Shape.Point`.
+
 ## TDS0400
 
 A variable declared with `let` can't change.

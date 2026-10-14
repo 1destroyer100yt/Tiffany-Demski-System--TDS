@@ -1,0 +1,11 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "use shop.prices\n\nfn main():\n    let p = prices\n"
+---
+error[TDS0244]: `prices` is a module, not a value
+  ┌─ TDS0244-module-as-value/main.tds:4:13
+  │
+4 │     let p = prices
+  │             ^^^^^^ module used as a value
+  │
+  = help: use one of its items, like `prices.name`

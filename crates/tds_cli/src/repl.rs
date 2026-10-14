@@ -56,14 +56,14 @@ impl<'out> Session<'out> {
         let saved_interp = self.interp.save_state();
         let items = entries.iter().filter_map(|e| match e {
             TopLevel::Item(item) => Some(item),
-            TopLevel::Stmt(_) => None,
+            TopLevel::Stmt(_) | TopLevel::Use(_) => None,
         });
         self.interp.load_items(items);
         let stmts: Vec<&Stmt> = entries
             .iter()
             .filter_map(|e| match e {
                 TopLevel::Stmt(stmt) => Some(stmt),
-                TopLevel::Item(_) => None,
+                TopLevel::Item(_) | TopLevel::Use(_) => None,
             })
             .collect();
         for stmt in stmts {

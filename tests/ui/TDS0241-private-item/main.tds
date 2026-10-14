@@ -1,0 +1,4 @@
+use shop.prices.{discount}
+
+fn main():
+    print(discount(100))

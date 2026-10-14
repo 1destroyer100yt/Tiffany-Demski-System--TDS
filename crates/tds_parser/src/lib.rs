@@ -19,17 +19,44 @@ use tds_lexer::{lex, StrPart, Token, TokenKind};
 
 /// Parses a whole source file. Lexer errors are included in the result.
 pub fn parse_module(src: &str) -> (Module, Vec<Diagnostic>) {
-    let lexed = lex(src);
+    parse_module_at(src, 0)
+}
+
+/// Parses a source file whose text starts at global offset `base` (see
+/// [`tds_lexer::lex_at`]).
+pub fn parse_module_at(src: &str, base: usize) -> (Module, Vec<Diagnostic>) {
+    let lexed = tds_lexer::lex_at(src, base);
     let mut parser = Parser::new(lexed.tokens);
-    let mut items = Vec::new();
+    let mut module = Module::default();
     for entry in parser.top_level(false) {
-        if let TopLevel::Item(item) = entry {
-            items.push(item);
+        match entry {
+            TopLevel::Use(u) => module.uses.push(u),
+            TopLevel::Item(item) => module.items.push(item),
+            TopLevel::Stmt(_) => {}
         }
     }
-    let mut errors = lexed.errors;
-    errors.append(&mut parser.errors);
-    (Module { items }, errors)
+    (module, merge_errors(lexed.errors, parser.errors))
+}
+
+/// Combines lexer and parser errors. After an unclosed bracket, the rest of
+/// the file is inside the bracket, so parser errors from there on are
+/// consequences of the same mistake and are dropped.
+fn merge_errors(mut lexer: Vec<Diagnostic>, parser: Vec<Diagnostic>) -> Vec<Diagnostic> {
+    let first_unclosed = lexer
+        .iter()
+        .filter(|d| d.code == codes::UNCLOSED_BRACKET)
+        .filter_map(|d| d.primary_span())
+        .map(|s| s.start)
+        .min();
+    lexer.extend(
+        parser
+            .into_iter()
+            .filter(|d| match (first_unclosed, d.primary_span()) {
+                (Some(open), Some(span)) => span.start < open,
+                _ => true,
+            }),
+    );
+    lexer
 }
 
 /// Parses one REPL entry, where items and statements may be mixed.
@@ -37,8 +64,7 @@ pub fn parse_repl(src: &str) -> (Vec<TopLevel>, Vec<Diagnostic>) {
     let lexed = lex(src);
     let mut parser = Parser::new(lexed.tokens);
     let entries = parser.top_level(true);
-    let mut errors = lexed.errors;
-    errors.append(&mut parser.errors);
+    let errors = merge_errors(lexed.errors, std::mem::take(&mut parser.errors));
     (entries, errors)
 }
 
@@ -265,7 +291,18 @@ impl Parser {
                 _ => {}
             }
 
-            if self.at_item_start() {
+            if self.at(&TokenKind::Use) {
+                if allow_stmts {
+                    let err = self.not_supported("`use` in the REPL", "a later phase");
+                    let _ = err;
+                    self.sync_line();
+                    continue;
+                }
+                match self.use_decl() {
+                    Ok(u) => entries.push(TopLevel::Use(u)),
+                    Err(Reported) => self.sync_line(),
+                }
+            } else if self.at_item_start() {
                 match self.item() {
                     Ok(item) => entries.push(TopLevel::Item(item)),
                     Err(Reported) => self.sync_line(),
@@ -313,17 +350,17 @@ impl Parser {
     }
 
     fn item(&mut self) -> PResult<Item> {
-        // `pub` is accepted and ignored: in Phase 1 everything is one module.
-        self.eat(&TokenKind::Pub);
+        // `pub` makes an item visible to other modules.
+        let is_pub = self.eat(&TokenKind::Pub);
         match self.peek() {
-            TokenKind::Fn => self.fn_item().map(Item::Fn),
-            TokenKind::Struct => self.struct_item().map(Item::Struct),
-            TokenKind::Enum => self.enum_item().map(Item::Enum),
+            TokenKind::Fn => self.fn_item(is_pub).map(Item::Fn),
+            TokenKind::Struct => self.struct_item(is_pub).map(Item::Struct),
+            TokenKind::Enum => self.enum_item(is_pub).map(Item::Enum),
             TokenKind::Impl => Err(self.not_supported("`impl` blocks", "Phase 3")),
             TokenKind::Interface => Err(self.not_supported("interfaces", "Phase 3")),
-            TokenKind::Use => Err(self.not_supported("`use` and modules", "Phase 2")),
+            TokenKind::Use => Err(self.not_supported("re-exports with `pub use`", "a later phase")),
             TokenKind::Const | TokenKind::Static => {
-                Err(self.not_supported("constants and statics", "Phase 2"))
+                Err(self.not_supported("constants and statics", "a later phase"))
             }
             TokenKind::Extern | TokenKind::Unsafe => {
                 Err(self.not_supported("`unsafe` and C interop", "Phase 5"))
@@ -331,6 +368,31 @@ impl Parser {
             TokenKind::At => Err(self.not_supported("attributes like `@derive`", "Phase 3")),
             _ => Err(self.unexpected_with(codes::EXPECTED_ITEM, "`fn`, `struct` or `enum`")),
         }
+    }
+
+    /// `use a.b.c` or `use a.b.{X, Y}`.
+    fn use_decl(&mut self) -> PResult<UseDecl> {
+        let start = self.bump().span; // `use`
+        let mut path = vec![self.expect_ident("a module name")?];
+        let mut names = None;
+        while self.eat(&TokenKind::Dot) {
+            if self.eat(&TokenKind::LBrace) {
+                let mut list = Vec::new();
+                while !self.at(&TokenKind::RBrace) {
+                    list.push(self.expect_ident("a name to import")?);
+                    if !self.eat(&TokenKind::Comma) {
+                        break;
+                    }
+                }
+                self.expect(&TokenKind::RBrace, "`,` or `}`")?;
+                names = Some(list);
+                break;
+            }
+            path.push(self.expect_ident("a name")?);
+        }
+        let span = start.to(self.prev_span);
+        self.expect_line_end()?;
+        Ok(UseDecl { path, names, span })
     }
 
     /// Reports a feature that belongs to a later phase.
@@ -346,7 +408,7 @@ impl Parser {
         )
     }
 
-    fn fn_item(&mut self) -> PResult<FnDecl> {
+    fn fn_item(&mut self, is_pub: bool) -> PResult<FnDecl> {
         let start = self.bump().span; // `fn`
         let name = self.expect_ident("a function name")?;
         if self.at(&TokenKind::LBracket) {
@@ -393,6 +455,7 @@ impl Parser {
         };
 
         Ok(FnDecl {
+            is_pub,
             span: start.to(self.prev_span),
             name,
             params,
@@ -439,7 +502,7 @@ impl Parser {
         })
     }
 
-    fn struct_item(&mut self) -> PResult<StructDecl> {
+    fn struct_item(&mut self, is_pub: bool) -> PResult<StructDecl> {
         let start = self.bump().span; // `struct`
         let name = self.expect_ident("a struct name")?;
         if self.at(&TokenKind::LBracket) {
@@ -466,13 +529,14 @@ impl Parser {
             Ok(())
         })?;
         Ok(StructDecl {
+            is_pub,
             span: start.to(self.prev_span),
             name,
             fields,
         })
     }
 
-    fn enum_item(&mut self) -> PResult<EnumDecl> {
+    fn enum_item(&mut self, is_pub: bool) -> PResult<EnumDecl> {
         let start = self.bump().span; // `enum`
         let name = self.expect_ident("an enum name")?;
         if self.at(&TokenKind::LBracket) {
@@ -512,6 +576,7 @@ impl Parser {
             Ok(())
         })?;
         Ok(EnumDecl {
+            is_pub,
             span: start.to(self.prev_span),
             name,
             variants,
@@ -565,7 +630,14 @@ impl Parser {
                 }
             }
             TokenKind::Ident(_) => {
-                let name = self.expect_ident("a type")?;
+                let mut name = self.expect_ident("a type")?;
+                // A type from another module: `types.Motor`.
+                while self.at(&TokenKind::Dot) && matches!(self.peek_nth(1), TokenKind::Ident(_)) {
+                    self.bump();
+                    let part = self.expect_ident("a type name")?;
+                    name.name = format!("{}.{}", name.name, part.name);
+                    name.span = name.span.to(part.span);
+                }
                 let mut args = Vec::new();
                 if self.eat(&TokenKind::LBracket) {
                     while !self.at(&TokenKind::RBracket) {
@@ -876,6 +948,7 @@ impl Parser {
             let span = lhs.span.to(rhs.span);
             lhs = match op {
                 Infix::Binary(op) => Expr {
+                    id: ExprId::UNSET,
                     kind: ExprKind::Binary {
                         op,
                         lhs: Box::new(lhs),
@@ -884,6 +957,7 @@ impl Parser {
                     span,
                 },
                 Infix::Range { inclusive } => Expr {
+                    id: ExprId::UNSET,
                     kind: ExprKind::Range {
                         start: Box::new(lhs),
                         end: Box::new(rhs),
@@ -932,7 +1006,7 @@ impl Parser {
             },
             None => ExprKind::Take(Box::new(operand)),
         };
-        Ok(Expr { kind, span })
+        Ok(Expr::new(kind, span))
     }
 
     fn postfix(&mut self) -> PResult<Expr> {
@@ -942,6 +1016,7 @@ impl Parser {
                 TokenKind::LParen => {
                     let args = self.call_args()?;
                     e = Expr {
+                        id: ExprId::UNSET,
                         span: e.span.to(self.prev_span),
                         kind: ExprKind::Call {
                             callee: Box::new(e),
@@ -954,6 +1029,7 @@ impl Parser {
                     let index = self.expr()?;
                     self.expect(&TokenKind::RBracket, "`]`")?;
                     e = Expr {
+                        id: ExprId::UNSET,
                         span: e.span.to(self.prev_span),
                         kind: ExprKind::Index {
                             expr: Box::new(e),
@@ -967,6 +1043,7 @@ impl Parser {
                     if self.at(&TokenKind::LParen) {
                         let args = self.call_args()?;
                         e = Expr {
+                            id: ExprId::UNSET,
                             span: e.span.to(self.prev_span),
                             kind: ExprKind::MethodCall {
                                 receiver: Box::new(e),
@@ -976,6 +1053,7 @@ impl Parser {
                         };
                     } else {
                         e = Expr {
+                            id: ExprId::UNSET,
                             span: e.span.to(name.span),
                             kind: ExprKind::Field {
                                 expr: Box::new(e),
@@ -987,6 +1065,7 @@ impl Parser {
                 TokenKind::Bang => {
                     let end = self.bump().span;
                     e = Expr {
+                        id: ExprId::UNSET,
                         span: e.span.to(end),
                         kind: ExprKind::Unwrap(Box::new(e)),
                     };
@@ -1094,6 +1173,7 @@ impl Parser {
                     self.expect(&TokenKind::RParen, "`)`")?;
                     // Keep the parenthesized span so errors cover the parens.
                     return Ok(Expr {
+                        id: ExprId::UNSET,
                         kind: inner.kind,
                         span: span.to(self.prev_span),
                     });
@@ -1128,6 +1208,7 @@ impl Parser {
             _ => return Err(self.unexpected("an expression")),
         };
         Ok(Expr {
+            id: ExprId::UNSET,
             kind,
             span: span.to(self.prev_span),
         })
@@ -1178,6 +1259,7 @@ impl Parser {
                 self.expect(&TokenKind::Colon, "`:` or `if`")?;
                 let (block, _) = self.branch()?;
                 Some(Box::new(Expr {
+                    id: ExprId::UNSET,
                     span: else_start.to(self.prev_span),
                     kind: ExprKind::Block(block),
                 }))
@@ -1187,6 +1269,7 @@ impl Parser {
         };
 
         Ok(Expr {
+            id: ExprId::UNSET,
             span: start.to(self.prev_span),
             kind: ExprKind::If {
                 cond: Box::new(cond),
@@ -1231,6 +1314,7 @@ impl Parser {
         })?;
         self.prev_was_dedent = true;
         Ok(Expr {
+            id: ExprId::UNSET,
             span: start.to(self.prev_span),
             kind: ExprKind::Match {
                 scrutinee: Box::new(scrutinee),

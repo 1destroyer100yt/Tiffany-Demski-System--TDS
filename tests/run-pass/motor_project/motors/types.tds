@@ -1,0 +1,10 @@
+pub struct Motor:
+    name: String
+    voltage: Float
+    max_rpm: Int
+    running: Bool = false
+
+pub enum Shape:
+    Circle(radius: Float)
+    Rect(w: Float, h: Float)
+    Point

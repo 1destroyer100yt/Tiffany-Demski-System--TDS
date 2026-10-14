@@ -321,3 +321,41 @@ structure, syntax, types, values and ownership, built-ins, errors, tools)
 instead of a single `docs/spec.md`, following the repository layout in the
 brief. The error-code table in `docs/spec/errors.md` is checked against the
 code registry by a test, like the explanations and the UI tests.
+
+# Phase 2
+
+## Modules
+
+**D53. One file is one module; module paths follow directories.**
+`use shop.prices` loads `shop/prices.tds` from the main file's directory.
+`use a.b` imports the module (used as `b.name`); `use a.b.{X, Y}` and
+`use a.b.X` import items. If `a/b.tds` and `a.tds` both exist,
+`use a.b` means the module. Modules may import each other in a cycle;
+there's no initialization order to worry about, since modules only
+declare things.
+
+**D54. Items are private unless `pub`.** Using a private item from another
+module is `TDS0241`. An enum's variants share the enum's visibility.
+Struct fields have no separate visibility yet; every field of a visible
+struct can be used. `pub use` (re-exports) is not supported yet.
+
+**D55. Importing an enum also imports its variants**, so the brief's
+`use motors.types.{Motor, Shape}` followed by `Circle(r)` patterns works.
+Two imports that bring the same name are a conflict (`TDS0243`).
+
+**D56. Modules are merged before type checking.** The resolver renames
+every item to a unique name (`shop.prices.total`; the main module keeps
+plain names), rewrites every reference, and hands one merged module to the
+checker and backends. They don't need to know about files. Messages show
+the full name; printed values use the short name (`Motor(...)`).
+
+**D57. Spans are global offsets.** Each file in a program gets its own
+range of offsets (`SourceMap`), so a `Span` identifies its file without a
+separate file id, and one diagnostic can point into several files.
+
+**D58. `std`, `core` and `alloc` can't be imported yet** (`TDS0106`); the
+standard library comes in Phase 4.
+
+**D59. After an unclosed bracket, later parser errors are dropped.** The
+rest of the file is inside the bracket, so they're consequences of the
+same mistake.

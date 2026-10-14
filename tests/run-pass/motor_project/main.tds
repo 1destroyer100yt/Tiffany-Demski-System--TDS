@@ -1,0 +1,20 @@
+// A program split into modules, based on the brief's motor example.
+use motors.types.{Motor, Shape}
+use motors.control
+
+fn main():
+    var motors = [
+        types_demo(),
+        Motor(name: "fan", voltage: 12.0, max_rpm: 3000),
+    ]
+    control.start_all(mut motors)
+    for m in motors:
+        print(control.describe(m))
+    print(control.running_count(motors))
+
+    let parts = [Circle(radius: 1.0), Shape.Rect(w: 2.0, h: 3.0), Point]
+    for p in parts:
+        print("{p} has area {control.area(p)}")
+
+fn types_demo() -> Motor:
+    return Motor(name: "pump", voltage: 24.0, max_rpm: 6000)

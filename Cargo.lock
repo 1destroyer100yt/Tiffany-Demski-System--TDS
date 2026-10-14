@@ -211,6 +211,7 @@ dependencies = [
  "tds_interp",
  "tds_lexer",
  "tds_parser",
+ "tds_resolve",
 ]
 
 [[package]]
@@ -240,6 +241,16 @@ dependencies = [
  "tds_ast",
  "tds_diagnostics",
  "tds_lexer",
+]
+
+[[package]]
+name = "tds_resolve"
+version = "0.1.0"
+dependencies = [
+ "tds_ast",
+ "tds_check",
+ "tds_diagnostics",
+ "tds_parser",
 ]
 
 [[package]]

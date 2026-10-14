@@ -1,0 +1,4 @@
+use shop.cart
+
+fn main():
+    print(1)

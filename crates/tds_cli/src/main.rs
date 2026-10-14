@@ -37,8 +37,8 @@ fn main() -> ExitCode {
                 }
             };
             match command.as_str() {
-                "run" => run(path, &src, args[2..].to_vec()),
-                "check" => check(path, &src),
+                "run" => run(path, args[2..].to_vec()),
+                "check" => check(path),
                 "parse" => parse(path, &src),
                 _ => tokens(path, &src),
             }
@@ -85,13 +85,20 @@ fn main() -> ExitCode {
 }
 
 fn report(diagnostics: &[tds_diagnostics::Diagnostic], path: &str, src: &str) {
+    report_with(diagnostics, &tds_diagnostics::SourceMap::single(path, src));
+}
+
+fn report_with(diagnostics: &[tds_diagnostics::Diagnostic], sources: &tds_diagnostics::SourceMap) {
     let color = std::io::stderr().is_terminal();
-    eprint!("{}", tds_cli::render(diagnostics, path, src, color));
+    eprint!("{}", tds_cli::render_with(diagnostics, sources, color));
 }
 
 /// Prints the errors and a one-line summary with a pointer to `tds explain`.
-fn report_errors(diagnostics: &[tds_diagnostics::Diagnostic], path: &str, src: &str) {
-    report(diagnostics, path, src);
+fn report_errors(
+    diagnostics: &[tds_diagnostics::Diagnostic],
+    sources: &tds_diagnostics::SourceMap,
+) {
+    report_with(diagnostics, sources);
     let errors: Vec<&str> = diagnostics
         .iter()
         .filter(|d| d.severity == tds_diagnostics::Severity::Error)
@@ -106,33 +113,41 @@ fn report_errors(diagnostics: &[tds_diagnostics::Diagnostic], path: &str, src: &
     }
 }
 
-fn run(path: &str, src: &str, args: Vec<String>) -> ExitCode {
+/// Loads and checks a program, reporting warnings or errors.
+fn compile(path: &str) -> Option<tds_cli::Checked> {
+    match tds_cli::compile_file(std::path::Path::new(path)) {
+        Ok(checked) => {
+            report_with(&checked.warnings, &checked.sources);
+            Some(checked)
+        }
+        Err(failure) => {
+            report_errors(&failure.diagnostics, &failure.sources);
+            None
+        }
+    }
+}
+
+fn run(path: &str, args: Vec<String>) -> ExitCode {
+    let Some(checked) = compile(path) else {
+        return ExitCode::FAILURE;
+    };
     let result = tds_cli::with_big_stack(|| {
         let mut stdout = std::io::stdout().lock();
-        tds_cli::run(src, &mut stdout, args)
+        tds_cli::interpret(&checked, &mut stdout, args)
     });
     match result {
-        Ok(warnings) => {
-            report(&warnings, path, src);
-            ExitCode::SUCCESS
-        }
-        Err(errors) => {
-            report_errors(&errors, path, src);
+        Ok(()) => ExitCode::SUCCESS,
+        Err(panic) => {
+            report_errors(&[panic], &checked.sources);
             ExitCode::FAILURE
         }
     }
 }
 
-fn check(path: &str, src: &str) -> ExitCode {
-    match tds_cli::check(src) {
-        Ok((_, warnings)) => {
-            report(&warnings, path, src);
-            ExitCode::SUCCESS
-        }
-        Err(errors) => {
-            report_errors(&errors, path, src);
-            ExitCode::FAILURE
-        }
+fn check(path: &str) -> ExitCode {
+    match compile(path) {
+        Some(_) => ExitCode::SUCCESS,
+        None => ExitCode::FAILURE,
     }
 }
 

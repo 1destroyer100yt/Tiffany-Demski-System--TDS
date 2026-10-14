@@ -14,6 +14,7 @@ tds_diagnostics = { path = "crates/tds_diagnostics" }
 tds_lexer = { path = "crates/tds_lexer" }
 tds_ast = { path = "crates/tds_ast" }
 tds_parser = { path = "crates/tds_parser" }
+tds_resolve = { path = "crates/tds_resolve" }
 tds_check = { path = "crates/tds_check" }
 tds_interp = { path = "crates/tds_interp" }
 tds_cli = { path = "crates/tds_cli" }

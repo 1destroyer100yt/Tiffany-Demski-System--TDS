@@ -1,0 +1,16 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "use shop.prices.{discount}\n\nfn main():\n    print(discount(100))\n"
+---
+error[TDS0241]: `discount` is private to its module
+  ┌─ TDS0241-private-item/main.tds:1:18
+  │
+1 │ use shop.prices.{discount}
+  │                  ^^^^^^^^ used from another module
+  │
+  ┌─ TDS0241-private-item/shop/prices.tds:1:4
+  │
+1 │ fn discount(price: Int) -> Int = price * 9 / 10
+  │    -------- declared here without `pub`
+  │
+  = help: add `pub` to the declaration of `discount`

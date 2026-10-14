@@ -1,0 +1,4 @@
+use shop.prices
+
+fn main():
+    let p = prices

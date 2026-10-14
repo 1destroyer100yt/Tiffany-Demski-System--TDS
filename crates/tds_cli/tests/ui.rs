@@ -7,6 +7,9 @@
 //! Programs that pass the checker are run, so runtime panics are covered
 //! the same way.
 //!
+//! A test that needs several modules is a directory instead, named the
+//! same way, whose `main.tds` is the main file.
+//!
 //! To accept changed output: `INSTA_UPDATE=always cargo test -p tds_cli --test ui`,
 //! then review the diff with git.
 
@@ -16,11 +19,14 @@ fn root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
 
+/// The UI tests: `.tds` files and module directories.
 fn ui_files() -> Vec<PathBuf> {
     let mut files: Vec<PathBuf> = std::fs::read_dir(root().join("tests/ui"))
         .expect("tests/ui exists")
         .map(|e| e.unwrap().path())
-        .filter(|p| p.extension().is_some_and(|e| e == "tds"))
+        .filter(|p| {
+            p.extension().is_some_and(|e| e == "tds") || (p.is_dir() && p.join("main.tds").exists())
+        })
         .collect();
     files.sort();
     files
@@ -28,16 +34,19 @@ fn ui_files() -> Vec<PathBuf> {
 
 /// Checks (and, if that succeeds, runs) a program. Returns the rendered
 /// output and the codes of all diagnostics.
-fn compile_and_run(name: &str, src: &str) -> (String, Vec<&'static str>) {
+fn compile_and_run(name: &str, src: &str, module_dir: PathBuf) -> (String, Vec<&'static str>) {
     let src = src.to_string();
     let name = name.to_string();
     tds_cli::with_big_stack(move || {
         let mut stdout = Vec::new();
-        let diagnostics = match tds_cli::run(&src, &mut stdout, Vec::new()) {
-            Ok(warnings) => warnings,
-            Err(errors) => errors,
+        let (diagnostics, sources) = match tds_cli::compile_source(&name, &src, &module_dir) {
+            Ok(checked) => match tds_cli::interpret(&checked, &mut stdout, Vec::new()) {
+                Ok(()) => (checked.warnings, checked.sources),
+                Err(panic) => (vec![panic], checked.sources),
+            },
+            Err(failure) => (failure.diagnostics, failure.sources),
         };
-        let mut output = tds_cli::render(&diagnostics, &name, &src, false);
+        let mut output = tds_cli::render_with(&diagnostics, &sources, false);
         if !stdout.is_empty() {
             output.push_str("--- program output ---\n");
             output.push_str(&String::from_utf8_lossy(&stdout));
@@ -58,10 +67,21 @@ fn ui_tests() {
     let mut failures = Vec::new();
     for path in &files {
         let stem = path.file_stem().unwrap().to_string_lossy().to_string();
-        let file_name = format!("{stem}.tds");
         let expected_code = &stem[..7];
-        let src = std::fs::read_to_string(path).unwrap();
-        let (output, codes) = compile_and_run(&file_name, &src);
+        let (file_name, src, module_dir) = if path.is_dir() {
+            (
+                format!("{stem}/main.tds"),
+                std::fs::read_to_string(path.join("main.tds")).unwrap(),
+                path.clone(),
+            )
+        } else {
+            (
+                format!("{stem}.tds"),
+                std::fs::read_to_string(path).unwrap(),
+                root().join("tests/ui"),
+            )
+        };
+        let (output, codes) = compile_and_run(&file_name, &src, module_dir);
 
         if !codes.contains(&expected_code) {
             failures.push(format!(

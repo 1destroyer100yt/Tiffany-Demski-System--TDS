@@ -1,0 +1,15 @@
+[package]
+name = "tds_resolve"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+tds_diagnostics.workspace = true
+tds_ast.workspace = true
+tds_parser.workspace = true
+
+[dev-dependencies]
+tds_check.workspace = true

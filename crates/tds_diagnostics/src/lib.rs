@@ -6,6 +6,9 @@
 //! stage stays a pure function of its input.
 
 pub mod codes;
+mod source_map;
+
+pub use source_map::{LineCol, SourceFile, SourceMap};
 
 /// A half-open byte range `start..end` into a source file.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]

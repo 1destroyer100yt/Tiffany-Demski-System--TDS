@@ -307,7 +307,7 @@ fn invalid_assignment_target() {
 #[test]
 fn not_supported_features() {
     assert_errors("impl Motor:\n    fn f(self): x\n", &["TDS0106"]);
-    assert_errors("use std.io\n", &["TDS0106"]);
+    assert_errors("pub use std.io\n", &["TDS0106"]);
     assert_errors(
         "fn largest[T](xs: List[T]) -> T:\n    xs[0]\n",
         &["TDS0106"],
@@ -432,4 +432,26 @@ fn largest(items: List[Int]) -> Int?:
     return best
 "#,
     );
+}
+
+#[test]
+fn use_declarations() {
+    assert_eq!(
+        parse_ok("use motors\nuse motors.types\nuse motors.types.{Motor, Shape}\n\nfn main():\n    print(1)\n"),
+        "use motors\nuse motors.types\nuse motors.types.{Motor, Shape}\nfn main() -> ()\n  (call print 1)\n"
+    );
+}
+
+#[test]
+fn dotted_type_names() {
+    assert_eq!(
+        parse_ok("fn f(m: types.Motor) -> List[a.b.C]?:\n    g()\n"),
+        "fn f(m: types.Motor) -> List[a.b.C]?\n  (call g)\n"
+    );
+}
+
+#[test]
+fn bad_use_declarations() {
+    assert_errors("use\n", &["TDS0101"]);
+    assert_errors("use a.{B\n", &["TDS0010"]);
 }

@@ -1,0 +1,14 @@
+---
+source: crates/tds_cli/tests/ui.rs
+description: "use shop.prices.{total}\n\nfn total() -> Int = 0\n\nfn main():\n    print(total())\n"
+---
+error[TDS0243]: the name `total` is already used in this module
+  ┌─ TDS0243-import-conflict/main.tds:1:18
+  │
+1 │ use shop.prices.{total}
+  │                  ^^^^^ imported here
+2 │ 
+3 │ fn total() -> Int = 0
+  │    ----- the name is already used here
+  │
+  = help: import the module instead (`use a.b`) and write `b.name`

@@ -1,0 +1,25 @@
+use motors.types.{Motor, Shape}
+
+pub fn start_all(motors: mut List[Motor]):
+    for i in 0..<len(motors):
+        start(mut motors[i])
+
+fn start(m: mut Motor):
+    m.running = true
+
+pub fn describe(m: Motor) -> String:
+    let state = if m.running: "running" else: "stopped"
+    return "{m.name} ({m.voltage}V, {m.max_rpm} rpm) is {state}"
+
+pub fn running_count(motors: List[Motor]) -> Int:
+    var n = 0
+    for m in motors:
+        if m.running:
+            n += 1
+    return n
+
+pub fn area(s: Shape) -> Float:
+    match s:
+        Circle(r): 3.0 * r * r
+        Rect(w, h): w * h
+        Point: 0.0

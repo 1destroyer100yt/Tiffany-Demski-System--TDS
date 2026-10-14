@@ -164,6 +164,19 @@ pub const BAD_RETURN: &str = "TDS0238";
 /// A match arm that can never run because an earlier arm covers it.
 pub const UNREACHABLE_PATTERN: &str = "TDS0239";
 
+// ---- modules ----
+
+/// `use` names a module whose file doesn't exist.
+pub const UNKNOWN_MODULE: &str = "TDS0240";
+/// An item from another module that isn't declared `pub`.
+pub const PRIVATE_ITEM: &str = "TDS0241";
+/// `use` names an item that the module doesn't declare.
+pub const UNKNOWN_IMPORT: &str = "TDS0242";
+/// Two imports, or an import and a declaration, with the same name.
+pub const IMPORT_CONFLICT: &str = "TDS0243";
+/// A module name used as a value.
+pub const MODULE_AS_VALUE: &str = "TDS0244";
+
 // ---- ownership and parameter modes ----
 
 /// Assigning to a `let` variable.

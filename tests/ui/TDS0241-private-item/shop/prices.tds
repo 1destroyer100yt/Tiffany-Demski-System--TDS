@@ -1,0 +1,7 @@
+fn discount(price: Int) -> Int = price * 9 / 10
+
+pub fn total(prices: List[Int]) -> Int:
+    var sum = 0
+    for p in prices:
+        sum += discount(p)
+    return sum
