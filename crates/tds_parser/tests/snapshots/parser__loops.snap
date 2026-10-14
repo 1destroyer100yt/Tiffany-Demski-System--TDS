@@ -1,0 +1,15 @@
+---
+source: crates/tds_parser/tests/parser.rs
+expression: "stmts(\"while running:\\n    tick()\\nfor i in 0..<10:\\n    if i == 5: break\\n    if i % 2 == 0: continue\\n    print(i)\\nfor x in xs: print(x)\")"
+---
+fn main() -> ()
+  while running
+    (call tick)
+  for i in (..< 0 10)
+    if (== i 5)
+      break
+    if (== (% i 2) 0)
+      continue
+    (call print i)
+  for x in xs
+    (call print x)

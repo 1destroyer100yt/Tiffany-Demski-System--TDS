@@ -336,15 +336,15 @@ fn tabs_inside_strings_and_comments_are_fine() {
 fn misaligned_dedent() {
     let src = "a:\n    b:\n        c\n      d\n";
     assert_errors(src, &["TDS0002"]);
-    // Recovery: `d` is treated as part of the 4-space block.
+    // Recovery: `d` falls between two levels and stays in the deeper block.
     assert_eq!(
         dump(src),
         [
             "ident(a) : NEWLINE",
             "INDENT ident(b) : NEWLINE",
             "INDENT ident(c) NEWLINE",
-            "DEDENT ident(d) NEWLINE",
-            "DEDENT EOF",
+            "ident(d) NEWLINE",
+            "DEDENT DEDENT EOF",
         ]
     );
 }
@@ -358,9 +358,9 @@ fn misaligned_block_is_reported_once() {
         [
             "ident(a) : NEWLINE",
             "INDENT ident(b) NEWLINE",
-            "DEDENT ident(c) NEWLINE",
+            "ident(c) NEWLINE",
             "ident(d) NEWLINE",
-            "ident(e) NEWLINE",
+            "DEDENT ident(e) NEWLINE",
             "EOF",
         ]
     );
@@ -385,6 +385,24 @@ fn indent_of_two_spaces_is_an_error() {
 #[test]
 fn indent_of_eight_spaces_is_an_error() {
     assert_errors("a:\n        b\n", &["TDS0003"]);
+}
+
+#[test]
+fn misaligned_line_followed_by_real_dedent() {
+    let src = "a:\n    b:\n        c\n      d\n    e\nf\n";
+    assert_errors(src, &["TDS0002"]);
+    assert_eq!(
+        dump(src),
+        [
+            "ident(a) : NEWLINE",
+            "INDENT ident(b) : NEWLINE",
+            "INDENT ident(c) NEWLINE",
+            "ident(d) NEWLINE",
+            "DEDENT ident(e) NEWLINE",
+            "DEDENT ident(f) NEWLINE",
+            "EOF",
+        ]
+    );
 }
 
 #[test]
@@ -553,7 +571,8 @@ fn closing_outer_bracket_reports_inner_once() {
 fn unclosed_bracket_at_eof() {
     let src = "f(1,\n";
     assert_errors(src, &["TDS0010"]);
-    assert_eq!(dump(src), ["ident(f) ( int(1) , NEWLINE", "EOF"]);
+    // A closing `)` is synthesized so the parser sees balanced brackets.
+    assert_eq!(dump(src), ["ident(f) ( int(1) , ) NEWLINE", "EOF"]);
 }
 
 #[test]
@@ -564,7 +583,7 @@ fn unclosed_bracket_inside_block_still_closes_blocks() {
         dump(src),
         [
             "fn ident(f) ( ) : NEWLINE",
-            "INDENT ident(g) ( NEWLINE",
+            "INDENT ident(g) ( ) NEWLINE",
             "DEDENT EOF"
         ]
     );

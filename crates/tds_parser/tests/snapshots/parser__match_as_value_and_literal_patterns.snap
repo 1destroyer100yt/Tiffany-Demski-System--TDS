@@ -1,0 +1,13 @@
+---
+source: crates/tds_parser/tests/parser.rs
+expression: "stmts(\"let name = match n:\\n    0: \\\"zero\\\"\\n    -1: \\\"minus one\\\"\\n    other: \\\"many\\\"\\nprint(name)\")"
+---
+fn main() -> ()
+  let name = match n
+    case 0
+      "zero"
+    case -1
+      "minus one"
+    case other
+      "many"
+  (call print name)

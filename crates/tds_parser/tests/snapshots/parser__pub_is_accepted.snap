@@ -1,0 +1,6 @@
+---
+source: crates/tds_parser/tests/parser.rs
+expression: "parse_ok(\"pub fn f():\\n    g()\\n\")"
+---
+fn f() -> ()
+  (call g)

@@ -1,0 +1,11 @@
+---
+source: crates/tds_parser/tests/parser.rs
+expression: "stmts(\"let x = if a:\\n    let t = 1\\n    t + 1\\nelse:\\n    0\\nprint(x)\")"
+---
+fn main() -> ()
+  let x = if a
+    let t = 1
+    (+ t 1)
+  else
+    0
+  (call print x)

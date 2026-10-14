@@ -41,3 +41,40 @@ pub const INVALID_NUMBER: &str = "TDS0012";
 pub const EMPTY_INTERPOLATION: &str = "TDS0013";
 /// A char literal that is empty, unterminated or holds more than one char.
 pub const INVALID_CHAR_LITERAL: &str = "TDS0014";
+
+// ---- parser ----
+
+/// An expression was expected but something else was found.
+pub const EXPECTED_EXPRESSION: &str = "TDS0100";
+/// A specific token was expected but something else was found.
+pub const UNEXPECTED_TOKEN: &str = "TDS0101";
+/// A `:` that opens a block isn't followed by an indented block.
+pub const EXPECTED_BLOCK: &str = "TDS0102";
+/// A line is indented but doesn't start a block.
+pub const UNEXPECTED_INDENT: &str = "TDS0103";
+/// A statement at the top level of a file, outside any function.
+pub const STATEMENT_AT_TOP_LEVEL: &str = "TDS0104";
+/// The left side of `=` can't be assigned to.
+pub const INVALID_ASSIGNMENT_TARGET: &str = "TDS0105";
+/// A feature from a later phase that the prototype doesn't support yet.
+pub const NOT_SUPPORTED_YET: &str = "TDS0106";
+/// Comparisons chained without `and`, like `a < b < c`.
+pub const CHAINED_COMPARISON: &str = "TDS0107";
+/// A type was expected but something else was found.
+pub const EXPECTED_TYPE: &str = "TDS0108";
+/// An item such as `fn` or `struct` was expected.
+pub const EXPECTED_ITEM: &str = "TDS0109";
+/// A positional argument after a named one.
+pub const POSITIONAL_AFTER_NAMED: &str = "TDS0110";
+/// A parameter without a type.
+pub const MISSING_PARAM_TYPE: &str = "TDS0111";
+/// `else` with no `if` before it.
+pub const ELSE_WITHOUT_IF: &str = "TDS0112";
+/// `=` used where `==` was probably meant.
+pub const ASSIGN_IN_CONDITION: &str = "TDS0113";
+/// `let` or `var` without an initial value.
+pub const MISSING_INITIALIZER: &str = "TDS0114";
+/// `mut` used outside a parameter type or a call argument.
+pub const MISPLACED_MODE: &str = "TDS0115";
+/// A pattern was expected in a `match` arm.
+pub const EXPECTED_PATTERN: &str = "TDS0116";

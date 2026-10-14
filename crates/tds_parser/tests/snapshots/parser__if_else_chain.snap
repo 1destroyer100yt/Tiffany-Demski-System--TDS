@@ -1,0 +1,12 @@
+---
+source: crates/tds_parser/tests/parser.rs
+expression: "stmts(\"if a:\\n    x()\\nelse if b:\\n    y()\\nelse:\\n    z()\\nafter()\")"
+---
+fn main() -> ()
+  if a
+    (call x)
+  else if b
+    (call y)
+  else
+    (call z)
+  (call after)

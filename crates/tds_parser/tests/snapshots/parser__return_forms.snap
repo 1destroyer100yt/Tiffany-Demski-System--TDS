@@ -1,0 +1,8 @@
+---
+source: crates/tds_parser/tests/parser.rs
+expression: "stmts(\"if done: return\\nreturn 1 + 2\")"
+---
+fn main() -> ()
+  if done
+    return
+  return (+ 1 2)

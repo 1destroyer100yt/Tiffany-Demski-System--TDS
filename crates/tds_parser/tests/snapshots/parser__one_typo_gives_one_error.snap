@@ -1,0 +1,9 @@
+---
+source: crates/tds_parser/tests/parser.rs
+expression: dump_module(&module)
+---
+fn f() -> ()
+  let y = 2
+  (call w)
+fn g() -> ()
+  (call ok)

@@ -16,11 +16,17 @@ They're also allowed on blank lines, where they can't affect layout. For
 recovery, a tab in indentation counts as 4 spaces. A run of tabs gives one
 error.
 
-**D3. Recovery for misaligned dedents uses a "phantom" level.**
-When a line dedents to a column that matches no open block (`TDS0002`), it is
-treated as belonging to the nearest outer block, and the odd column is
-remembered as a phantom level that emits no INDENT/DEDENT. Later lines at the
-same column don't each get an error.
+**D3. A misaligned line joins the deeper of the two blocks around it.**
+When a line dedents to a column that matches no open block (`TDS0002`), it
+is treated as part of the deeper block (the one it was most likely meant to
+continue). Following lines at the same column join the same block without
+another error. Joining the outer block instead would often push the line to
+the top level and cause a second, confusing error from the parser.
+
+**D3b. Unclosed brackets are closed at end of file.**
+The lexer reports each unclosed bracket (`TDS0010`) and then emits a
+matching zero-width closing token, so the parser sees balanced brackets and
+doesn't report the same mistake again.
 
 **D4. Line continuation after a trailing operator.**
 A line ending in `,` or one of these continues onto the next line:
@@ -77,3 +83,53 @@ help). Rendering happens once, in the CLI, which keeps stages pure so they
 can become incremental queries later. Error codes are grouped by stage in
 `tds_diagnostics::codes`: `TDS00xx` lexer, `TDS01xx` parser, `TDS02xx-03xx`
 types, `TDS04xx` ownership, `TDS05xx` runtime.
+
+## Phase 1, step 2: parser
+
+**D15. A file holds only declarations; code runs from `fn main()`.**
+Statements at the top level of a file are an error (`TDS0104`). The REPL is
+the exception: there, declarations and statements can be mixed.
+
+**D16. Operator precedence** (loosest first): `or`, `and`, `not`,
+comparisons, `??`, ranges (`..<`, `...`), `+ -`, `* / %`, prefix `-` and
+`take`, then postfix (calls, indexing, `.field`, `.method()`, `!`).
+- `not` binds looser than comparisons, as in Python: `not a == b` is
+  `not (a == b)`.
+- Comparisons don't chain: `a < b < c` is an error (`TDS0107`) that suggests
+  `a < b and b < c`.
+- `??` binds tighter than comparisons, so `x > best ?? 0` compares with the
+  default. It's right-associative.
+- Ranges don't associate: `a..<b..<c` is rejected by the type checker.
+
+**D17. Bodies may be written inline after `:`.**
+`if`, `else`, `while`, `for`, `fn` and match arms accept either an indented
+block or a single simple statement on the same line (`if done: return`).
+For an inline `if`, the `else` may go on the next line.
+
+**D18. A block's value is its last expression.**
+When a block is used as a value (function body, `if` branch, match arm), its
+value is the last statement if that's an expression. This is what makes the
+brief's `fn area(s: Shape) -> Float: match s: ...` work without `return`.
+
+**D19. `take` also works outside call arguments.**
+`let b = take a` moves `a` into `b`. `mut` is only valid as a parameter mode
+or a call-argument marker (`TDS0115`).
+
+**D20. Call arguments: positional first, then named.**
+A positional argument after a named one is an error (`TDS0110`). Named
+arguments are used for struct construction; the checker decides where
+they're allowed.
+
+**D21. Every variable is initialized when declared.**
+`var x: Int` without `= value` is an error (`TDS0114`). This avoids the need
+for definite-assignment analysis and matches "no null in safe code".
+
+**D22. Later-phase features get a clear "not supported yet" error.**
+`impl`, `interface`, `use`, generics, closures, `?`, tuples, attributes,
+references, `unsafe` and friends are recognized and rejected with
+`TDS0106`, which names the phase that adds them, instead of a confusing
+syntax error.
+
+**D23. The parser doesn't repeat lexer errors.**
+It never reports an error at a lexer `Error` token, and the lexer closes
+unclosed brackets (D3b), so one typo gives one error.

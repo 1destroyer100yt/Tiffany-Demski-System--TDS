@@ -50,15 +50,6 @@ pub fn lex(src: &str) -> LexOutput {
     }
 }
 
-/// One entry of the indentation stack.
-#[derive(Debug, Clone, Copy)]
-struct Level {
-    width: usize,
-    /// True for a level created only to recover from a misaligned dedent.
-    /// It produces no INDENT when pushed and no DEDENT when popped.
-    phantom: bool,
-}
-
 struct Lexer<'a> {
     src: &'a str,
     /// Current byte offset.
@@ -69,7 +60,11 @@ struct Lexer<'a> {
     tokens: Vec<Token>,
     errors: Vec<Diagnostic>,
     /// Indentation widths of the open blocks. Always starts with 0.
-    indents: Vec<Level>,
+    indents: Vec<usize>,
+    /// After a misaligned line, `(column, stack depth)` it was assigned to.
+    /// Following lines at the same column join the same block without
+    /// another error.
+    misaligned: Option<(usize, usize)>,
     /// Open brackets, innermost last, with the span of each.
     brackets: Vec<(char, Span)>,
     /// Set when the previous line ended in an operator or comma, so the
@@ -85,10 +80,8 @@ impl<'a> Lexer<'a> {
             end,
             tokens: Vec::new(),
             errors: Vec::new(),
-            indents: vec![Level {
-                width: 0,
-                phantom: false,
-            }],
+            indents: vec![0],
+            misaligned: None,
             brackets: Vec::new(),
             continuation: false,
         }
@@ -230,11 +223,7 @@ impl<'a> Lexer<'a> {
     /// Compares a new line's indentation with the block stack and emits
     /// INDENT / DEDENT tokens.
     fn handle_indentation(&mut self, indent: usize, span: Span) {
-        let top = self
-            .indents
-            .last()
-            .expect("indent stack is never empty")
-            .width;
+        let top = *self.indents.last().expect("indent stack is never empty");
 
         if indent > top {
             if indent != top + INDENT_WIDTH {
@@ -256,27 +245,27 @@ impl<'a> Lexer<'a> {
             }
             // Push the real width either way, so the following lines of the
             // same block line up with it and don't produce more errors.
-            self.indents.push(Level {
-                width: indent,
-                phantom: false,
-            });
+            self.indents.push(indent);
+            self.misaligned = None;
             self.push(TokenKind::Indent, span);
         } else if indent < top {
-            while indent < self.indents.last().unwrap().width {
-                let popped = self.indents.pop().unwrap();
-                if !popped.phantom {
-                    self.push(TokenKind::Dedent, Span::empty(self.pos));
-                }
+            if self.misaligned == Some((indent, self.indents.len())) {
+                return;
             }
-            let level = self.indents.last().unwrap().width;
-            if indent != level {
-                // Recover by treating the line as if it were at `level`.
-                // A phantom level remembers the odd column, so the following
-                // lines of the same misaligned block don't each get an error.
-                self.indents.push(Level {
-                    width: indent,
-                    phantom: true,
-                });
+            // Pop every block this line is clearly outside of. A line that
+            // falls between two levels stays in the deeper block.
+            while self.indents.len() > 1 && indent <= self.indents[self.indents.len() - 2] {
+                self.indents.pop();
+                self.push(TokenKind::Dedent, Span::empty(self.pos));
+            }
+            let level = *self.indents.last().unwrap();
+            if indent == level {
+                self.misaligned = None;
+            } else {
+                // Recover by treating the line as part of the block at
+                // `level`, and remember the column for the lines after it.
+                self.misaligned = Some((indent, self.indents.len()));
+                let outer = self.indents[self.indents.len() - 2];
                 self.error(
                     Diagnostic::error(
                         codes::MISALIGNED_DEDENT,
@@ -284,10 +273,10 @@ impl<'a> Lexer<'a> {
                     )
                     .with_primary(span, format!("{indent} spaces here"))
                     .with_note(format!(
-                        "when a block ends, the next line must line up with an outer block; \
-                         the nearest is at {level} spaces"
+                        "lines in the same block must line up; the nearby blocks are at \
+                         {outer} and {level} spaces"
                     ))
-                    .with_help(format!("indent this line by {level} spaces")),
+                    .with_help(format!("indent this line by {outer} or {level} spaces")),
                 );
             }
         }
@@ -354,6 +343,7 @@ impl<'a> Lexer<'a> {
 
     fn finish_file(&mut self) {
         let eof = Span::empty(self.end);
+        self.close_open_brackets();
         let needs_newline = self.tokens.last().is_some_and(|tok| {
             !matches!(
                 tok.kind,
@@ -363,17 +353,27 @@ impl<'a> Lexer<'a> {
         if needs_newline {
             self.push(TokenKind::Newline, eof);
         }
-        self.report_unclosed_brackets();
         while self.indents.len() > 1 {
-            if !self.indents.pop().unwrap().phantom {
-                self.push(TokenKind::Dedent, eof);
-            }
+            self.indents.pop();
+            self.push(TokenKind::Dedent, eof);
         }
         self.push(TokenKind::Eof, eof);
     }
 
-    fn report_unclosed_brackets(&mut self) {
-        for (open, span) in std::mem::take(&mut self.brackets) {
+    /// Reports every bracket still open at the end of the input and emits
+    /// a zero-width closing token for each, innermost first, so the parser
+    /// sees balanced brackets and doesn't report the same problem again.
+    fn close_open_brackets(&mut self) {
+        let open_brackets = std::mem::take(&mut self.brackets);
+        for &(open, _) in open_brackets.iter().rev() {
+            let kind = match open {
+                '(' => TokenKind::RParen,
+                '[' => TokenKind::RBracket,
+                _ => TokenKind::RBrace,
+            };
+            self.push(kind, Span::empty(self.end));
+        }
+        for (open, span) in open_brackets {
             let close = closing_for(open);
             self.error(
                 Diagnostic::error(codes::UNCLOSED_BRACKET, format!("`{open}` is never closed"))
@@ -934,7 +934,7 @@ impl<'a> Lexer<'a> {
             }
             self.lex_token();
         }
-        self.report_unclosed_brackets();
+        self.close_open_brackets();
     }
 
     /// Lexes either a char literal `'a'` or a lifetime `'src`.

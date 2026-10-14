@@ -1,0 +1,15 @@
+---
+source: crates/tds_parser/tests/parser.rs
+expression: "stmts(\"match s:\\n    Circle(r): 3.14 * r * r\\n    Rect(w, h):\\n        let a = w * h\\n        a\\n    Point: 0.0\\n    _: 1.0\")"
+---
+fn main() -> ()
+  match s
+    case Circle(r)
+      (* (* 3.14 r) r)
+    case Rect(w, h)
+      let a = (* w h)
+      a
+    case Point
+      0.0
+    case _
+      1.0

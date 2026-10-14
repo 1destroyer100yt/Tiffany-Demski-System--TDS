@@ -1,0 +1,15 @@
+[package]
+name = "tds_parser"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+tds_diagnostics.workspace = true
+tds_lexer.workspace = true
+tds_ast.workspace = true
+
+[dev-dependencies]
+insta.workspace = true

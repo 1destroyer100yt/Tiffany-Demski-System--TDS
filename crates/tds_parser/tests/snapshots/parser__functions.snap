@@ -1,0 +1,12 @@
+---
+source: crates/tds_parser/tests/parser.rs
+expression: "parse_ok(\"fn greet(name: String) -> String:\\n    return \\\"Hello, {name}!\\\"\\n\\nfn square(x: Int) -> Int = x * x\\n\\nfn damage(player: mut Player, amount: Int):\\n    player.health -= amount\\n\\nfn consume(p: take Player): print(p.name)\\n\")"
+---
+fn greet(name: String) -> String
+  return (str "Hello, " {name} "!")
+fn square(x: Int) -> Int
+  (* x x)
+fn damage(player: mut Player, amount: Int) -> ()
+  (. player health) -= amount
+fn consume(p: take Player) -> ()
+  (call print (. p name))

@@ -1,0 +1,24 @@
+---
+source: crates/tds_parser/tests/parser.rs
+expression: "parse_ok(r#\"// Player example from the brief.\nstruct Player:\n    name: String\n    health: Int\n\nfn damage(player: mut Player, amount: Int):\n    player.health -= amount\n\nfn area(s: Shape) -> Float:\n    match s:\n        Circle(r): 3.14159 * r * r\n        Rect(w, h): w * h\n        Point: 0.0\n\nfn main():\n    var player = Player(name: \"Alex\", health: 100)\n    damage(mut player, 25)\n    print(player.health)\n    let total = [1, 2, 3].len() +\n        10\n    for i in 1...3:\n        print(\"{i}: {area(Circle(1.0))}\")\n\"#)"
+---
+struct Player
+  name: String
+  health: Int
+fn damage(player: mut Player, amount: Int) -> ()
+  (. player health) -= amount
+fn area(s: Shape) -> Float
+  match s
+    case Circle(r)
+      (* (* 3.14159 r) r)
+    case Rect(w, h)
+      (* w h)
+    case Point
+      0.0
+fn main() -> ()
+  var player = (call Player (name: "Alex") (health: 100))
+  (call damage (mut player) 25)
+  (call print (. player health))
+  let total = (+ (method len (list 1 2 3)) 10)
+  for i in (... 1 3)
+    (call print (str {i} ": " {(call area (call Circle 1.0))}))

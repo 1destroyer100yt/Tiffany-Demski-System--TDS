@@ -1,0 +1,15 @@
+---
+source: crates/tds_parser/tests/parser.rs
+expression: "parse_ok(\"struct Motor:\\n    name: String\\n    voltage: Float\\n    running: Bool = false\\n    tags: List[String]\\n    next: Int?\\n\\nenum Shape:\\n    Circle(radius: Float)\\n    Rect(w: Float, h: Float)\\n    Pair(Int, Int)\\n    Point\\n\")"
+---
+struct Motor
+  name: String
+  voltage: Float
+  running: Bool = false
+  tags: List[String]
+  next: Int?
+enum Shape
+  Circle(radius: Float)
+  Rect(w: Float, h: Float)
+  Pair(Int, Int)
+  Point

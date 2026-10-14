@@ -1,0 +1,11 @@
+---
+source: crates/tds_parser/tests/parser.rs
+expression: "stmts(\"let name = \\\"Tiffany\\\"\\nvar score: Int = 100\\nscore += 10\\nscore = score * 2\\nxs[0] = 1\\np.health -= 5\")"
+---
+fn main() -> ()
+  let name = "Tiffany"
+  var score: Int = 100
+  score += 10
+  score = (* score 2)
+  (index xs 0) = 1
+  (. p health) -= 5
