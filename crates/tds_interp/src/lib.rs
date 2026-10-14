@@ -85,6 +85,16 @@ enum Step {
     Index(i64, Span),
 }
 
+/// A copy of the REPL session's state, to roll back to if an entry panics
+/// halfway through. Cheap: values are shared through `Rc`.
+pub struct SavedState {
+    fns: HashMap<String, Rc<FnDecl>>,
+    structs: HashMap<String, (Rc<StructInfo>, Rc<StructDecl>)>,
+    variants: HashMap<String, Rc<VariantInfo>>,
+    enums: HashMap<String, Vec<Rc<VariantInfo>>>,
+    globals: Vec<(Rc<str>, Value)>,
+}
+
 pub struct Interpreter<'out> {
     out: &'out mut dyn Write,
     args: Vec<String>,
@@ -116,6 +126,16 @@ impl<'out> Interpreter<'out> {
     /// earlier ones with the same name (useful in the REPL).
     pub fn load_items<'a>(&mut self, items: impl IntoIterator<Item = &'a Item>) {
         for item in items {
+            // A REPL redefinition replaces any earlier item with this name,
+            // whatever kind it was.
+            let name = &item.name().name;
+            self.fns.remove(name);
+            self.structs.remove(name);
+            if let Some(old) = self.enums.remove(name) {
+                for v in old {
+                    self.variants.remove(&v.name);
+                }
+            }
             match item {
                 Item::Fn(f) => {
                     self.fns.insert(f.name.name.clone(), Rc::new(f.clone()));
@@ -147,6 +167,45 @@ impl<'out> Interpreter<'out> {
                 }
             }
         }
+    }
+
+    /// Writes a line of output (the REPL uses this to show values).
+    pub fn write_line(&mut self, text: &str) {
+        let _ = writeln!(self.out, "{text}");
+    }
+
+    pub fn flush(&mut self) {
+        let _ = self.out.flush();
+    }
+
+    /// Forgets all declarations and top-level variables.
+    pub fn reset(&mut self) {
+        self.fns.clear();
+        self.structs.clear();
+        self.variants.clear();
+        self.enums.clear();
+        self.frames = vec![Frame::default()];
+    }
+
+    /// Saves the declarations and top-level variables (for the REPL).
+    pub fn save_state(&self) -> SavedState {
+        SavedState {
+            fns: self.fns.clone(),
+            structs: self.structs.clone(),
+            variants: self.variants.clone(),
+            enums: self.enums.clone(),
+            globals: self.frames[0].vars.clone(),
+        }
+    }
+
+    /// Restores what [`Interpreter::save_state`] saved.
+    pub fn restore_state(&mut self, saved: SavedState) {
+        self.fns = saved.fns;
+        self.structs = saved.structs;
+        self.variants = saved.variants;
+        self.enums = saved.enums;
+        self.frames.truncate(1);
+        self.frames[0].vars = saved.globals;
     }
 
     /// Calls `fn main()`.

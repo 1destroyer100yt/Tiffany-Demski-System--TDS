@@ -8,6 +8,8 @@
 //! source → lexer → parser → type/ownership checker → interpreter
 //! ```
 
+pub mod repl;
+
 use std::io::Write;
 
 use codespan_reporting::diagnostic::{

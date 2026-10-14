@@ -9,6 +9,7 @@ tds: the TDS language tool (Phase 1 prototype)
 Usage:
     tds run <file.tds> [args...]   check and run a program
     tds check <file.tds>           check a program without running it
+    tds repl                       start an interactive prompt
     tds parse <file.tds>           print the syntax tree (for debugging)
     tds tokens <file.tds>          print the tokens (for debugging)
     tds explain <code>             explain an error code, like TDS0412
@@ -41,6 +42,14 @@ fn main() -> ExitCode {
                 "parse" => parse(path, &src),
                 _ => tokens(path, &src),
             }
+        }
+        "repl" => {
+            let color = std::io::stderr().is_terminal();
+            tds_cli::with_big_stack(|| {
+                let mut stdin = std::io::stdin().lock();
+                tds_cli::repl::run(&mut stdin, color);
+            });
+            ExitCode::SUCCESS
         }
         "explain" => {
             let Some(code) = args.get(1) else {

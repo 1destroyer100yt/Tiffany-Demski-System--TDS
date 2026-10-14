@@ -197,6 +197,16 @@ impl Value {
     }
 }
 
+impl Value {
+    /// The value as the REPL shows it: like `print`, but strings and chars
+    /// are quoted so `"5"` and `5` look different.
+    pub fn repr(&self) -> String {
+        let mut out = String::new();
+        self.write(&mut out, true);
+        out
+    }
+}
+
 impl fmt::Display for Value {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut out = String::new();

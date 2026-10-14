@@ -288,3 +288,27 @@ used only when stderr is a terminal. Runtime panics use the same format.
 per code, and `tds explain CODE` prints a section. A test makes sure every
 code has an explanation and every explanation has a code. After errors,
 `tds run` and `tds check` print a count and point to `tds explain`.
+
+## Phase 1, step 8: REPL
+
+**D48. REPL entries are atomic.**
+An entry is parsed and checked as a whole, and runs only if it has no
+errors. If it panics partway through, the checker's and the interpreter's
+session state both go back to how they were before the entry, so the two
+never disagree about which variables exist or have been moved. Output
+already printed stays printed.
+
+**D49. When an entry is complete.**
+An entry continues while brackets are open or after a line ending in an
+operator or `,`. A line ending in `:` starts a block, which continues until
+an empty line, as in Python. A single complete line runs at once.
+
+**D50. REPL scoping.** Top-level variables live in a session scope that
+functions can't see (functions only see their parameters, as in files).
+Redefining a function, struct or enum replaces the old one. An expression
+statement prints its value, with strings and chars quoted to tell `"5"`
+from `5`; `()` values print nothing.
+
+**D51. No line-editing library yet.** The REPL reads plain lines from
+stdin, so it also works with piped input. Arrow-key history can come with
+the Phase 4 tooling work.
